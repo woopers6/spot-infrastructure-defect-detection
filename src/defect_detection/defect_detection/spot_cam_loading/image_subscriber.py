@@ -6,7 +6,7 @@ from sensor_msgs.msg import Image
 class ImageSubscriber(Node):
 
     def __init__(self):
-        super.__init__('image_subscriber')
+        super().__init__('image_subscriber')
         self.latest_msg = None
 
         self.subscription = self.create_subscription(
