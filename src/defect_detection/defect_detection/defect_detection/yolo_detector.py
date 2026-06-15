@@ -55,7 +55,7 @@ class YoloNode(Node):
 
         detections_msg = Detection2DArray()
 
-        # Preserve acquisition time through inference for LiDAR synchronization.
+        # Preserve acquisition time through inference for LiDAR synchronization
         detections_msg.header = image_msg.header
 
         if len(results) > 0:

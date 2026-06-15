@@ -49,8 +49,7 @@ class ImagePublisher(Node):
             self.get_logger().warn("Failed to capture frame.")
             return
 
-        # OpenCV does not expose a reliable hardware timestamp here. Stamp as
-        # soon as read() returns to minimize capture-to-stamp uncertainty.
+        # OpenCV does not expose a reliable hardware timestamp here, so stamp as soon as read() returns to minimize capture-to-stamp uncertainty
         stamp = self.get_clock().now().to_msg()
         ros2_image_msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
         ros2_image_msg.header.stamp = stamp

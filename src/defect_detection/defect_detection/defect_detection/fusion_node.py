@@ -19,7 +19,6 @@ from defect_detection.defect_localization.extract_3d_detections import (
     extract_detections_3d,
 )
 
-
 def stamp_to_nanoseconds(stamp):
     return stamp.sec * 1_000_000_000 + stamp.nanosec
 
