@@ -47,6 +47,27 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /detection_markers
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: Navigation Targets
+      Queue Size: 10
+      Topic:
+        Depth: 1
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /autonomous_navigation/markers
+    - Class: rviz_default_plugins/Pose
+      Enabled: true
+      Name: Selected Standoff Goal
+      Queue Size: 10
+      Shape: Arrow
+      Topic:
+        Depth: 1
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /autonomous_navigation/selected_goal
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48

@@ -32,6 +32,16 @@
   <arg name="box_alpha" default="0.30"/>
   <arg name="label_height" default="0.15"/>
   <arg name="marker_lifetime_sec" default="0.50"/>
+  <arg name="autonomous_navigation" default="false"
+       description="Build and prioritize defect standoff goals with Nav2."/>
+  <arg name="autonomous_navigation_enabled" default="false"
+       description="Allow the navigator to send NavigateToPose goals."/>
+  <arg name="navigation_target_frame" default="map"/>
+  <arg name="navigation_base_frame" default="base_link"/>
+  <arg name="navigation_standoff_distance" default="1.50"/>
+  <arg name="navigation_minimum_confidence" default="0.50"/>
+  <arg name="navigation_priority_config"
+       default="$(find-pkg-share defect_detection)/config/navigation_priorities.yaml"/>
   <arg name="sync_queue_size" default="30"
        description="Number of detection and cloud messages retained for matching."/>
   <arg name="sync_slop_sec" default="0.10"
@@ -100,4 +110,20 @@
         name="rviz2"
         args="-d $(find-pkg-share defect_detection)/config/defect_visualization.rviz"
         output="screen"/>
+
+  <node if="$(var autonomous_navigation)"
+        pkg="defect_detection"
+        exec="autonomous_navigator"
+        name="autonomous_defect_navigator"
+        output="screen">
+    <param name="enabled" value="$(var autonomous_navigation_enabled)"/>
+    <param name="target_frame" value="$(var navigation_target_frame)"/>
+    <param name="base_frame" value="$(var navigation_base_frame)"/>
+    <param name="standoff_distance"
+           value="$(var navigation_standoff_distance)"/>
+    <param name="minimum_confidence"
+           value="$(var navigation_minimum_confidence)"/>
+    <param name="priority_config_path"
+           value="$(var navigation_priority_config)"/>
+  </node>
 </launch>

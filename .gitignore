@@ -13,6 +13,7 @@ htmlcov/
 
 # Field credentials and machine-specific paths
 /config/field.env
+/.runtime/
 
 # Editors and operating systems
 .idea/

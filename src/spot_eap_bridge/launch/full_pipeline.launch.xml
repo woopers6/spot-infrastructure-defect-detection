@@ -36,6 +36,14 @@
   <arg name="box_alpha" default="0.30"/>
   <arg name="label_height" default="0.15"/>
   <arg name="marker_lifetime_sec" default="0.50"/>
+  <arg name="autonomous_navigation" default="false"/>
+  <arg name="autonomous_navigation_enabled" default="false"/>
+  <arg name="navigation_target_frame" default="map"/>
+  <arg name="navigation_base_frame" default="base_link"/>
+  <arg name="navigation_standoff_distance" default="1.50"/>
+  <arg name="navigation_minimum_confidence" default="0.50"/>
+  <arg name="navigation_priority_config"
+       default="$(find-pkg-share defect_detection)/config/navigation_priorities.yaml"/>
   <arg name="sync_queue_size" default="30"/>
   <arg name="sync_slop_sec" default="0.10"/>
 
@@ -87,6 +95,20 @@
     <arg name="box_alpha" value="$(var box_alpha)"/>
     <arg name="label_height" value="$(var label_height)"/>
     <arg name="marker_lifetime_sec" value="$(var marker_lifetime_sec)"/>
+    <arg name="autonomous_navigation"
+         value="$(var autonomous_navigation)"/>
+    <arg name="autonomous_navigation_enabled"
+         value="$(var autonomous_navigation_enabled)"/>
+    <arg name="navigation_target_frame"
+         value="$(var navigation_target_frame)"/>
+    <arg name="navigation_base_frame"
+         value="$(var navigation_base_frame)"/>
+    <arg name="navigation_standoff_distance"
+         value="$(var navigation_standoff_distance)"/>
+    <arg name="navigation_minimum_confidence"
+         value="$(var navigation_minimum_confidence)"/>
+    <arg name="navigation_priority_config"
+         value="$(var navigation_priority_config)"/>
     <arg name="sync_queue_size" value="$(var sync_queue_size)"/>
     <arg name="sync_slop_sec" value="$(var sync_slop_sec)"/>
   </include>

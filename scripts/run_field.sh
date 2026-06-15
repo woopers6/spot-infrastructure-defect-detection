@@ -8,6 +8,7 @@ if [[ "${MODE}" != "transport" && "${MODE}" != "full" ]]; then
 fi
 
 WORKSPACE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export WORKSPACE_ROOT
 export FIELD_CONFIG="${FIELD_CONFIG:-${WORKSPACE_ROOT}/config/field.env}"
 
 if [[ ! -f "${FIELD_CONFIG}" ]]; then
@@ -28,6 +29,10 @@ if [[ ! -f "${WORKSPACE_ROOT}/install/setup.bash" ]]; then
 fi
 # shellcheck disable=SC1091
 source "${WORKSPACE_ROOT}/install/setup.bash"
+
+export ROS_LOG_DIR="${ROS_LOG_DIR:-${WORKSPACE_ROOT}/log/field}"
+export YOLO_CONFIG_DIR="${YOLO_CONFIG_DIR:-${WORKSPACE_ROOT}/.runtime/ultralytics}"
+mkdir -p "${ROS_LOG_DIR}" "${YOLO_CONFIG_DIR}"
 
 cd "${WORKSPACE_ROOT}"
 "${WORKSPACE_ROOT}/scripts/field_preflight.sh" "${MODE}"
@@ -51,5 +56,8 @@ exec ros2 launch spot_eap_bridge full_pipeline.launch.xml \
   fusion:="${fusion}" \
   visualization:=true \
   rviz:="${ENABLE_RVIZ:-true}" \
+  autonomous_navigation:="${AUTONOMOUS_NAVIGATION:-false}" \
+  autonomous_navigation_enabled:="${AUTONOMOUS_NAVIGATION_ENABLED:-false}" \
+  navigation_priority_config:="${NAVIGATION_PRIORITY_CONFIG:-}" \
   pointcloud_monitor:=false \
   image_monitor:=false

@@ -54,7 +54,8 @@ cp config/field.env.example config/field.env
 ```
 
 Edit `config/field.env` with the Spot address, credentials, camera index, and
-absolute model/calibration paths. This file is ignored by git.
+model/calibration paths. The defaults follow the workspace when it is moved.
+This file is ignored by git.
 
 Commission the hardware in transport mode first:
 
@@ -85,12 +86,11 @@ Create a clean transfer archive for another ROS 2 Jazzy computer:
 
 The archive includes source, scripts, configuration templates, calibration,
 and model files present in the workspace. It excludes build products, logs,
-git history, and `config/field.env` credentials. On the destination:
+git history, and `config/field.env` credentials. On the destination, with
+ROS 2 Jazzy already installed:
 
 ```bash
-python3 -m pip install --user --break-system-packages -r requirements-field.txt
-source /opt/ros/jazzy/setup.bash
-colcon build --symlink-install
+./scripts/bootstrap_field_machine.sh
 ```
 
 ## Hardware Test
@@ -160,6 +160,47 @@ The RViz configuration includes a `PointCloud2` display and a `MarkerArray`
 display. Its fixed frame defaults to `lidar`, matching the default bridge
 configuration. Change RViz's **Global Options > Fixed Frame** if the cloud uses
 a different `header.frame_id`.
+
+## Autonomous Defect Reinspection
+
+The autonomous navigator consumes `/detections_3d`, transforms detections into
+`map`, merges repeated observations, ranks targets by class priority,
+confidence, size, and observation count, then asks Nav2 to plan to several
+stand-off poses around the defect. It selects the shortest reachable pose and
+faces the robot toward the defect rather than commanding the defect position.
+
+This node requires an existing Nav2 stack for Spot, including a map or SLAM
+source, the `map -> odom -> base_link` TF chain, costmaps, planner/controller
+servers, and a Spot velocity-command bridge. The RViz point cloud alone is not
+a navigation map.
+
+Install package dependencies and rebuild:
+
+```bash
+rosdep install --from-paths src --ignore-src -r -y
+colcon build --symlink-install
+source install/setup.bash
+```
+
+First run in preview mode. This plans and publishes the selected goal but does
+not send a motion command:
+
+```bash
+ros2 launch spot_eap_bridge full_pipeline.launch.xml \
+  detector:=true fusion:=true rviz:=true \
+  autonomous_navigation:=true \
+  autonomous_navigation_enabled:=false
+```
+
+Verify `/autonomous_navigation/selected_goal` and
+`/autonomous_navigation/markers` in RViz. Set the RViz fixed frame to `map`.
+Only after Nav2 can safely navigate Spot with ordinary goals, enable movement
+with `autonomous_navigation_enabled:=true`.
+
+Edit `config/navigation_priorities.yaml` to assign larger values to more
+urgent Detection3D class IDs. Field deployments can set
+`AUTONOMOUS_NAVIGATION=true`, keep `AUTONOMOUS_NAVIGATION_ENABLED=false` for
+preview, and set `NAVIGATION_PRIORITY_CONFIG` in `config/field.env`.
 
 ## Fusion Status
 

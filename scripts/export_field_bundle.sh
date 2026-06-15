@@ -14,6 +14,7 @@ rsync -a \
   --exclude 'log/' \
   --exclude '.pytest_cache/' \
   --exclude '__pycache__/' \
+  --exclude '.runtime/' \
   --exclude 'config/field.env' \
   --exclude 'spot_field_bundle.tar.gz' \
   "${WORKSPACE_ROOT}/" \

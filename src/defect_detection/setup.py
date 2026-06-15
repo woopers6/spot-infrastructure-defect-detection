@@ -7,7 +7,7 @@ package_name = 'defect_detection'
 
 setup(
     name=package_name,
-    version='0.0.0',
+    version='0.1.0',
     packages=find_namespace_packages(
         include=[package_name, package_name + '.*'],
         exclude=['test'],
@@ -28,7 +28,7 @@ setup(
     maintainer='avaradar',
     maintainer_email='arunvaradarajan3@gmail.com',
     description='ROS 2 camera, detection, and LiDAR fusion nodes.',
-    license='TODO: License declaration',
+    license='Apache-2.0',
     extras_require={
         'test': [
             'pytest',
@@ -44,6 +44,8 @@ setup(
             'fusion_node = defect_detection.defect_detection.fusion_node:main',
             'visualization_node = '
             'defect_detection.defect_detection.visualization_node:main',
+            'autonomous_navigator = '
+            'defect_detection.autonomous_navigation.navigator:main',
         ],
     },
 )

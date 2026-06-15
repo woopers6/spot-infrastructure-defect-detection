@@ -2,7 +2,10 @@
 set -euo pipefail
 
 MODE="${1:-transport}"
-CONFIG_FILE="${FIELD_CONFIG:-config/field.env}"
+WORKSPACE_ROOT="$(
+  cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd
+)"
+CONFIG_FILE="${FIELD_CONFIG:-${WORKSPACE_ROOT}/config/field.env}"
 
 if [[ -f "${CONFIG_FILE}" ]]; then
   set -a
@@ -53,6 +56,25 @@ else
   failures=$((failures + 1))
 fi
 
+if [[ "${AUTONOMOUS_NAVIGATION_ENABLED:-false}" == "true" &&
+      "${AUTONOMOUS_NAVIGATION:-false}" != "true" ]]; then
+  printf 'FAIL: AUTONOMOUS_NAVIGATION_ENABLED requires AUTONOMOUS_NAVIGATION=true\n'
+  failures=$((failures + 1))
+fi
+
+if [[ "${AUTONOMOUS_NAVIGATION:-false}" == "true" ]]; then
+  if python3 -c 'import nav2_msgs' >/dev/null 2>&1; then
+    printf 'OK:   Nav2 Python messages are available\n'
+  else
+    printf 'FAIL: nav2_msgs is unavailable; install ROS Nav2 dependencies\n'
+    failures=$((failures + 1))
+  fi
+
+  check_file \
+    'navigation priority configuration' \
+    "${NAVIGATION_PRIORITY_CONFIG:-}"
+fi
+
 if [[ "${MODE}" == "full" ]]; then
   check_file 'YOLO model' "${MODEL_PATH:-}"
   check_file 'dataset configuration' "${DATASET_PATH:-}"
@@ -72,6 +94,24 @@ PY
       printf 'OK:   calibration is marked calibrated\n'
     else
       printf 'FAIL: calibration is not marked calibrated: true\n'
+      failures=$((failures + 1))
+    fi
+  fi
+
+  if [[ -f "${DATASET_PATH:-}" ]]; then
+    if python3 - "${DATASET_PATH}" <<'PY'
+import sys
+import yaml
+
+with open(sys.argv[1], encoding='utf-8') as stream:
+    dataset = yaml.safe_load(stream) or {}
+if not dataset.get('names'):
+    raise SystemExit(1)
+PY
+    then
+      printf 'OK:   dataset contains class names\n'
+    else
+      printf 'FAIL: dataset names list is empty\n'
       failures=$((failures + 1))
     fi
   fi
