@@ -63,7 +63,7 @@ class DetectionFusionNode(Node):
         self.pointcloud_sub = message_filters.Subscriber(
             self,
             PointCloud2,
-            "/velodyne/points",
+            "/spot/velodyne/points",
             qos_profile=qos_profile_sensor_data,
         )
 
@@ -102,6 +102,7 @@ class DetectionFusionNode(Node):
             image_shape=self.image_shape,
             filter_outliers=True,
             max_depth_deviation=0.50,
+            depth_cluster_tolerance=0.20,
             min_points=3,
         )
 

@@ -108,16 +108,43 @@ def filter_depth_outliers(
     points_lidar: np.ndarray,
     points_camera: np.ndarray,
     max_depth_deviation: float = 0.50,
+    depth_cluster_tolerance: float = 0.20,
+    min_cluster_points: int = 3,
 ) -> tuple[np.ndarray, np.ndarray]:
     if len(points_camera) == 0:
         return points_lidar, points_camera
 
     depths = points_camera[:, 2]
-    median_depth = np.median(depths)
+    sorted_indices = np.argsort(depths)
+    sorted_depths = depths[sorted_indices]
 
-    keep = np.abs(depths - median_depth) <= max_depth_deviation
+    split_indices = np.flatnonzero(
+        np.diff(sorted_depths) > depth_cluster_tolerance
+    ) + 1
+    depth_clusters = np.split(sorted_indices, split_indices)
+    valid_clusters = [
+        cluster
+        for cluster in depth_clusters
+        if len(cluster) >= min_cluster_points
+    ]
 
-    return points_lidar[keep], points_camera[keep]
+    if not valid_clusters:
+        return (
+            np.empty((0, 3), dtype=points_lidar.dtype),
+            np.empty((0, 3), dtype=points_camera.dtype),
+        )
+
+    closest_cluster = min(
+        valid_clusters,
+        key=lambda cluster: float(np.median(depths[cluster])),
+    )
+    cluster_median_depth = np.median(depths[closest_cluster])
+    keep_indices = closest_cluster[
+        np.abs(depths[closest_cluster] - cluster_median_depth)
+        <= max_depth_deviation
+    ]
+
+    return points_lidar[keep_indices], points_camera[keep_indices]
 
 
 def extract_xyxy_from_yolo_box(box: Any) -> tuple[int, int, int, int]:
@@ -253,6 +280,7 @@ def extract_detection_3d(
     image_shape: Optional[tuple[int, int]] = None,
     filter_outliers: bool = True,
     max_depth_deviation: float = 0.50,
+    depth_cluster_tolerance: float = 0.20,
     min_points: int = 3,
 ) -> Optional[CustomDetection3D]:
     pc_lidar = pointcloud2_to_xyz_array(pointcloud_msg)
@@ -284,6 +312,8 @@ def extract_detection_3d(
             defect_points_lidar,
             defect_points_camera,
             max_depth_deviation=max_depth_deviation,
+            depth_cluster_tolerance=depth_cluster_tolerance,
+            min_cluster_points=min_points,
         )
 
     if len(defect_points_lidar) < min_points:
@@ -320,6 +350,7 @@ def extract_detections_3d(
     image_shape: Optional[tuple[int, int]] = None,
     filter_outliers: bool = True,
     max_depth_deviation: float = 0.50,
+    depth_cluster_tolerance: float = 0.20,
     min_points: int = 3,
 ) -> list[CustomDetection3D]:
     detections: list[CustomDetection3D] = []
@@ -334,6 +365,7 @@ def extract_detections_3d(
             image_shape=image_shape,
             filter_outliers=filter_outliers,
             max_depth_deviation=max_depth_deviation,
+            depth_cluster_tolerance=depth_cluster_tolerance,
             min_points=min_points,
         )
 
@@ -357,6 +389,7 @@ def extract_detections_3d(
 #     image_shape=(image_height, image_width),
 #     filter_outliers=True,
 #     max_depth_deviation=0.50,
+#     depth_cluster_tolerance=0.20,
 #     min_points=3,
 # )
 #
