@@ -1,1 +1,113 @@
-<h1 align="center">Autonomous Infrastructure Defect Detection and Re-Inspection</h1> <p align="center"> A ROS 2-based perception pipeline for detecting, localizing, mapping, and prioritizing infrastructure defects using a Jetson Orin Nano, YOLO11m, a low-light USB camera, and the Boston Dynamics Spot EAP LiDAR. </p> <hr> <h2>Overview</h2> <p> This repository implements an autonomous infrastructure inspection system designed to run on the NVIDIA Jetson Orin Nano and Boston Dynamics Spot. </p> <p> A Kehipi 1080p USB camera streams image data to the Jetson, where a YOLO11m model trained on the GYU-DET dataset performs real-time infrastructure defect detection. The camera's infrared and low-light imaging capabilities make it suitable for inspection in dark environments such as tunnels, caves, utility corridors, and poorly illuminated industrial facilities. </p> <h2>Camera-LiDAR Fusion</h2> <p> Defects detected in the camera image are spatially localized using point-cloud data from the Spot EAP LiDAR. The fusion pipeline: </p> <ol> <li> Transforms LiDAR points into the camera coordinate frame using the LiDAR-to-camera extrinsic calibration matrix. </li> <li> Projects the transformed 3D points onto the camera image using the camera intrinsic matrix. </li> <li> Identifies projected LiDAR points that fall inside each YOLO bounding box. </li> <li> Returns the associated points in the original LiDAR coordinate frame for mapping and navigation. </li> </ol> <h2>Detection Output</h2> <p> Each localized defect contains the following information: </p> <ul> <li>Defect class</li> <li>YOLO confidence score</li> <li>2D image bounding box</li> <li>Estimated camera-frame depth</li> <li>LiDAR-frame centroid</li> <li>Number of associated LiDAR points</li> <li>Approximate 3D bounding box</li> <li>Filtered defect point cloud</li> </ul> <h2>Mapping and Autonomous Re-Inspection</h2> <p> The resulting detections and defect point clouds are published through ROS 2 and visualized in RViz2. Detected defects are incorporated into a spatial infrastructure map that can be used by Spot for navigation and inspection planning. </p> <p> Defects may be ranked using an estimated severity score based on properties such as defect class, confidence, size, depth, and spatial extent. Spot can then autonomously revisit high-priority defects for closer inspection or additional data collection. </p> <h2>System Pipeline</h2> <pre> Kehipi 1080p Camera | v Image Capture and ROS 2 Publishing | v YOLO11m Defect Detection | +----------------------+ | | v v 2D Bounding Boxes Spot EAP LiDAR | v Camera-LiDAR Calibration | v 2D-to-3D Point Association | v 3D Defect Localization | v ROS 2 Defect Map / RViz2 | v Severity-Based Re-Inspection </pre> <h2>Primary Technologies</h2> <ul> <li>ROS 2</li> <li>NVIDIA Jetson Orin Nano</li> <li>Ultralytics YOLO11m</li> <li>TensorRT</li> <li>OpenCV</li> <li>Python</li> <li>Boston Dynamics Spot</li> <li>Spot EAP LiDAR</li> <li>RViz2</li> <li>GYU-DET infrastructure defect dataset</li> </ul>
+# Spot Infrastructure Defect Detection
+
+ROS 2 packages for capturing USB-camera images, running YOLO defect detection,
+receiving Spot EAP Velodyne point clouds, and associating 2D detections with
+LiDAR points.
+
+## Packages
+
+- `defect_detection`: camera publisher, YOLO detector, test subscribers, and
+  2D-to-3D fusion.
+- `spot_eap_bridge`: Spot SDK point-cloud client and ROS topic normalization.
+
+## Pipeline
+
+```text
+USB webcam -> /ros2_image -> YOLO -> /detections_2d
+                                             |
+Spot EAP LiDAR -> Spot SDK -> /spot/velodyne/points
+                                             |
+                                             v
+                                      /detections_3d
+```
+
+## Requirements
+
+- ROS 2 Jazzy
+- Python 3.12
+- OpenCV and `cv_bridge`
+- Ultralytics
+- Boston Dynamics Spot SDK
+
+Install the Python dependencies used outside the ROS package index:
+
+```bash
+python3 -m pip install --user --break-system-packages \
+  bosdyn-api bosdyn-client bosdyn-core ultralytics
+```
+
+Build the workspace:
+
+```bash
+cd ~/ros2_ws
+source /opt/ros/jazzy/setup.bash
+colcon build --symlink-install
+source install/setup.bash
+```
+
+## Hardware Test
+
+Connect this computer to Spot's network and set credentials:
+
+```bash
+export SPOT_IP=YOUR_SPOT_IP
+export BOSDYN_CLIENT_USERNAME=YOUR_USERNAME
+export BOSDYN_CLIENT_PASSWORD=YOUR_PASSWORD
+```
+
+Run the webcam and EAP LiDAR transport without detection or fusion:
+
+```bash
+ros2 launch spot_eap_bridge full_pipeline.launch.xml \
+  image_monitor:=true \
+  pointcloud_monitor:=true \
+  detector:=false \
+  fusion:=false
+```
+
+Verify publication rates in another sourced terminal:
+
+```bash
+ros2 topic hz /ros2_image
+ros2 topic hz /spot/velodyne/points
+```
+
+The Spot client defaults to the `velodyne-point-cloud` directory service and
+automatically selects a source containing `velodyne`. See
+[`src/spot_eap_bridge/README.md`](src/spot_eap_bridge/README.md) for overrides
+and timestamp details.
+
+## Detection
+
+Place these files in `src/defect_detection/models/` before enabling YOLO:
+
+- `dataset.yaml`
+- `yolov11m.engine`
+
+The TensorRT engine must be compatible with the target GPU and TensorRT
+version. Then launch with:
+
+```bash
+ros2 launch spot_eap_bridge full_pipeline.launch.xml detector:=true
+```
+
+## Fusion Status
+
+The fusion algorithm and synthetic tests are implemented, but live fusion
+requires real calibration values. The current values in `fusion_node.py` are
+placeholders:
+
+- Webcam intrinsic matrix
+- LiDAR-to-camera extrinsic transform
+- Camera image dimensions
+
+Keep `fusion:=false` until those values are replaced with calibration from the
+rigidly mounted webcam and EAP LiDAR.
+
+## Tests
+
+```bash
+source /opt/ros/jazzy/setup.bash
+colcon test --packages-select defect_detection spot_eap_bridge
+colcon test-result --verbose
+```

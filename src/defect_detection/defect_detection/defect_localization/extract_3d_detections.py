@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -45,7 +44,7 @@ class CustomDetection3D:
 def pointcloud2_to_xyz_array(msg: PointCloud2) -> np.ndarray:
     points = point_cloud2.read_points_numpy(
         msg,
-        field_names=("x", "y", "z"),
+        field_names=('x', 'y', 'z'),
         skip_nans=True,
     )
 
@@ -65,7 +64,9 @@ def transform_points(points_xyz: np.ndarray, transform_4x4: np.ndarray) -> np.nd
         return np.empty((0, 3), dtype=np.float64)
 
     if transform_4x4.shape != (4, 4):
-        raise ValueError(f"Expected 4x4 transform, got shape {transform_4x4.shape}")
+        raise ValueError(
+            f'Expected 4x4 transform, got shape {transform_4x4.shape}'
+        )
 
     points_h = np.hstack(
         [points_xyz, np.ones((points_xyz.shape[0], 1), dtype=np.float64)]
@@ -80,7 +81,9 @@ def project_camera_points_to_pixels(
     intrinsics_3x3: np.ndarray,
 ) -> tuple[np.ndarray, np.ndarray]:
     if intrinsics_3x3.shape != (3, 3):
-        raise ValueError(f"Expected 3x3 intrinsics, got shape {intrinsics_3x3.shape}")
+        raise ValueError(
+            f'Expected 3x3 intrinsics, got shape {intrinsics_3x3.shape}'
+        )
 
     if points_camera.size == 0:
         return np.array([]), np.array([])
@@ -149,7 +152,7 @@ def filter_depth_outliers(
 
 def extract_xyxy_from_yolo_box(box: Any) -> tuple[int, int, int, int]:
     # vision_msgs/Detection2D
-    if hasattr(box, "bbox") and hasattr(box.bbox, "center"):
+    if hasattr(box, 'bbox') and hasattr(box.bbox, 'center'):
         cx = box.bbox.center.position.x
         cy = box.bbox.center.position.y
         width = box.bbox.size_x
@@ -163,10 +166,10 @@ def extract_xyxy_from_yolo_box(box: Any) -> tuple[int, int, int, int]:
         return x1, y1, x2, y2
 
     # Ultralytics YOLO box
-    if hasattr(box, "xyxy"):
+    if hasattr(box, 'xyxy'):
         xyxy = box.xyxy
 
-        if hasattr(xyxy, "detach"):
+        if hasattr(xyxy, 'detach'):
             xyxy = xyxy.detach().cpu().numpy()
         else:
             xyxy = np.asarray(xyxy)
@@ -177,22 +180,24 @@ def extract_xyxy_from_yolo_box(box: Any) -> tuple[int, int, int, int]:
     # raw array/list
     xyxy = np.asarray(box).reshape(-1)
     if xyxy.shape[0] < 4:
-        raise ValueError("Bounding box must contain at least 4 values: x1, y1, x2, y2")
+        raise ValueError(
+            'Bounding box must contain at least 4 values: x1, y1, x2, y2'
+        )
 
     return tuple(map(int, xyxy[:4].tolist()))
 
 
 def extract_confidence_from_yolo_box(box: Any) -> float:
     # vision_msgs/Detection2D
-    if hasattr(box, "results") and len(box.results) > 0:
+    if hasattr(box, 'results') and len(box.results) > 0:
         return float(box.results[0].hypothesis.score)
 
     # Ultralytics YOLO box
-    if not hasattr(box, "conf"):
+    if not hasattr(box, 'conf'):
         return 0.0
 
     conf = box.conf
-    if hasattr(conf, "detach"):
+    if hasattr(conf, 'detach'):
         conf = conf.detach().cpu().numpy()
     else:
         conf = np.asarray(conf)
@@ -202,7 +207,7 @@ def extract_confidence_from_yolo_box(box: Any) -> float:
 
 def extract_class_id_from_yolo_box(box: Any) -> Optional[int]:
     # vision_msgs/Detection2D
-    if hasattr(box, "results") and len(box.results) > 0:
+    if hasattr(box, 'results') and len(box.results) > 0:
         class_id = box.results[0].hypothesis.class_id
         try:
             return int(class_id)
@@ -210,11 +215,11 @@ def extract_class_id_from_yolo_box(box: Any) -> Optional[int]:
             return None
 
     # Ultralytics YOLO box
-    if not hasattr(box, "cls"):
+    if not hasattr(box, 'cls'):
         return None
 
     cls = box.cls
-    if hasattr(cls, "detach"):
+    if hasattr(cls, 'detach'):
         cls = cls.detach().cpu().numpy()
     else:
         cls = np.asarray(cls)
@@ -224,7 +229,7 @@ def extract_class_id_from_yolo_box(box: Any) -> Optional[int]:
 
 def get_class_name(class_id: Optional[int], class_names: Optional[list[str]]) -> str:
     if class_id is None:
-        return "unknown"
+        return 'unknown'
 
     if class_names is None:
         return str(class_id)
@@ -256,6 +261,7 @@ def points_in_2d_bbox(
         )
 
     return mask
+
 
 def extract_xyxy_from_detection2d(detection) -> tuple[int, int, int, int]:
     cx = detection.bbox.center.position.x

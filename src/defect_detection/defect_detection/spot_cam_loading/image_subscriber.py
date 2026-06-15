@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import Image
 
 
@@ -13,16 +14,17 @@ class ImageSubscriber(Node):
             Image,
             'ros2_image',
             self.listener_callback,
-            10
+            qos_profile_sensor_data,
         )
+
     def listener_callback(self, msg):
         self.latest_msg = msg
-        self.get_logger().info(
-            f'Received image!'
-        )
+        self.get_logger().info('Received image')
+
     def get_image_data(self):
         return self.latest_msg
-    
+
+
 def main(args=None):
     rclpy.init(args=args)
 
@@ -35,6 +37,4 @@ def main(args=None):
 
 
 if __name__ == '__main__':
-     main()
-    
-
+    main()

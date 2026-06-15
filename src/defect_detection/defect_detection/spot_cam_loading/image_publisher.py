@@ -1,9 +1,8 @@
+import cv2
+from cv_bridge import CvBridge
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
-
-import cv2
-from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 
 
@@ -38,7 +37,7 @@ class ImagePublisher(Node):
         self.cap = cv2.VideoCapture(camera_index)
 
         if not self.cap.isOpened():
-            self.get_logger().error("Could not open camera.")
+            raise RuntimeError(f'Could not open camera index {camera_index}')
 
         self.timer = self.create_timer(1.0 / frame_rate, self.publish_image)
 
@@ -46,12 +45,15 @@ class ImagePublisher(Node):
         ret, frame = self.cap.read()
 
         if not ret:
-            self.get_logger().warn("Failed to capture frame.")
+            self.get_logger().warning('Failed to capture frame')
             return
 
-        # OpenCV does not expose a reliable hardware timestamp here, so stamp as soon as read() returns to minimize capture-to-stamp uncertainty
+        # OpenCV has no reliable hardware timestamp, so stamp immediately.
         stamp = self.get_clock().now().to_msg()
-        ros2_image_msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
+        ros2_image_msg = self.bridge.cv2_to_imgmsg(
+            frame,
+            encoding='bgr8',
+        )
         ros2_image_msg.header.stamp = stamp
         ros2_image_msg.header.frame_id = self.frame_id
 

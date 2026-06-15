@@ -1,11 +1,11 @@
 import os
 
-import numpy as np
-import rclpy
 from bosdyn.api import point_cloud_pb2
 import bosdyn.client
 from bosdyn.client import util as bosdyn_util
 from builtin_interfaces.msg import Time
+import numpy as np
+import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import PointCloud2

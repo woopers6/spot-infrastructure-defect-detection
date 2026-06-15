@@ -1,23 +1,21 @@
-import rclpy
-from rclpy.node import Node
-from rclpy.qos import qos_profile_sensor_data
-
-import message_filters
-import numpy as np
-import yaml
-
-from sensor_msgs.msg import PointCloud2
-from vision_msgs.msg import (
-    Detection2DArray,
-    Detection3DArray,
-    Detection3D as Detection3DMsg,
-    BoundingBox3D,
-    ObjectHypothesisWithPose,
-)
-
 from defect_detection.defect_localization.extract_3d_detections import (
     extract_detections_3d,
 )
+import message_filters
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
+from sensor_msgs.msg import PointCloud2
+from vision_msgs.msg import (
+    BoundingBox3D,
+    Detection2DArray,
+    Detection3D as Detection3DMsg,
+    Detection3DArray,
+    ObjectHypothesisWithPose,
+)
+import yaml
+
 
 def stamp_to_nanoseconds(stamp):
     return stamp.sec * 1_000_000_000 + stamp.nanosec
@@ -34,12 +32,12 @@ def timestamp_delta_seconds(first_stamp, second_stamp):
 class DetectionFusionNode(Node):
 
     def __init__(self):
-        super().__init__("detection_fusion_node")
+        super().__init__('detection_fusion_node')
 
-        with open("dataset.yaml", "r") as file:
+        with open('dataset.yaml', 'r') as file:
             data = yaml.safe_load(file)
 
-        names = data["names"]
+        names = data['names']
 
         if isinstance(names, dict):
             self.class_names = [
@@ -63,34 +61,37 @@ class DetectionFusionNode(Node):
         if self.sync_slop_sec <= 0.0:
             raise ValueError('sync_slop_sec must be greater than zero')
 
-        self.intrinsics_matrix = np.array([ #TODO: replace with actual intrinsics
-            [1.0, 0.0, 1.0],
-            [0.0, 1.0, 1.0],
-            [0.0, 0.0, 1.0],
-        ], dtype=np.float64)
-
-        self.T_lidar_to_camera = np.eye(4, dtype=np.float64) #TODO: replace with actual extrinsic transformation from lidar to camera
+        # Placeholders until camera and LiDAR calibration is loaded.
+        self.intrinsics_matrix = np.array(
+            [
+                [1.0, 0.0, 1.0],
+                [0.0, 1.0, 1.0],
+                [0.0, 0.0, 1.0],
+            ],
+            dtype=np.float64,
+        )
+        self.T_lidar_to_camera = np.eye(4, dtype=np.float64)
 
         self.image_shape = (720, 1280)
 
         # Output publisher
         self.detections_3d_pub = self.create_publisher(
             Detection3DArray,
-            "/detections_3d",
+            '/detections_3d',
             10,
         )
 
         self.detections_sub = message_filters.Subscriber(
             self,
             Detection2DArray,
-            "/detections_2d",
+            '/detections_2d',
             qos_profile=qos_profile_sensor_data,
         )
 
         self.pointcloud_sub = message_filters.Subscriber(
             self,
             PointCloud2,
-            "/spot/velodyne/points",
+            '/spot/velodyne/points',
             qos_profile=qos_profile_sensor_data,
         )
 
@@ -108,7 +109,7 @@ class DetectionFusionNode(Node):
         )
 
         self.get_logger().info(
-            "Fusion node started. Publishing on /detections_3d"
+            'Fusion node started. Publishing on /detections_3d'
         )
 
     def synchronized_callback(
@@ -165,8 +166,8 @@ class DetectionFusionNode(Node):
         self.detections_3d_pub.publish(output_msg)
 
         self.get_logger().info(
-            f"Published {len(output_msg.detections)} detections "
-            f"to /detections_3d"
+            f'Published {len(output_msg.detections)} detections '
+            f'to /detections_3d'
         )
 
     def convert_to_ros_detection3d(self, detection_data):
@@ -240,5 +241,5 @@ def main(args=None):
         rclpy.shutdown()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

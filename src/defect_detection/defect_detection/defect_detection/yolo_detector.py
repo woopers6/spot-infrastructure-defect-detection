@@ -1,54 +1,52 @@
+from cv_bridge import CvBridge
 import rclpy
 from rclpy.node import Node
-
-import yaml
-import numpy as np
-from ultralytics import YOLO
-
-from cv_bridge import CvBridge
-from sensor_msgs.msg import Image
-from vision_msgs.msg import Detection2DArray, Detection2D, ObjectHypothesisWithPose
-from vision_msgs.msg import BoundingBox2D
 from rclpy.qos import qos_profile_sensor_data
+from sensor_msgs.msg import Image
+from ultralytics import YOLO
+from vision_msgs.msg import (
+    BoundingBox2D,
+    Detection2D,
+    Detection2DArray,
+    ObjectHypothesisWithPose,
+)
+import yaml
 
 
 class YoloNode(Node):
     def __init__(self):
-        super().__init__("yolo_node")
-        with open("dataset.yaml", "r") as file:
+        super().__init__('yolo_node')
+        with open('dataset.yaml', 'r') as file:
             data = yaml.safe_load(file)
-        names = data["names"]
+        names = data['names']
 
         if isinstance(names, dict):
-            self.class_names = [
+            self.classes = [
                 names[index] for index in sorted(names.keys())
             ]
         else:
-            self.class_names = list(names)
+            self.classes = list(names)
 
-        self.classes = list(data["names"])
-        self.colors = np.random.uniform(0, 255, size=(len(self.classes), 3))
-
-        self.model = YOLO("yolov11m.engine")
+        self.model = YOLO('yolov11m.engine')
         self.bridge = CvBridge()
 
         self.image_sub = self.create_subscription(
             Image,
-            "/ros2_image",
+            '/ros2_image',
             self.image_callback,
-            qos_profile_sensor_data
+            qos_profile_sensor_data,
         )
 
         self.detections_pub = self.create_publisher(
             Detection2DArray,
-            "/detections_2d",
-            qos_profile_sensor_data
+            '/detections_2d',
+            qos_profile_sensor_data,
         )
 
     def image_callback(self, image_msg: Image):
         frame = self.bridge.imgmsg_to_cv2(
             image_msg,
-            desired_encoding="bgr8"
+            desired_encoding='bgr8',
         )
 
         results = self.model(frame)
@@ -110,5 +108,5 @@ def main(args=None):
     rclpy.shutdown()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

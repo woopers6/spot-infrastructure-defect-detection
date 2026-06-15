@@ -27,7 +27,7 @@ setup(
     zip_safe=True,
     maintainer='avaradar',
     maintainer_email='arunvaradarajan3@gmail.com',
-    description='TODO: Package description',
+    description='ROS 2 camera, detection, and LiDAR fusion nodes.',
     license='TODO: License declaration',
     extras_require={
         'test': [

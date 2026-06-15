@@ -1,3 +1,10 @@
+from defect_detection.defect_detection.fusion_node import DetectionFusionNode
+from defect_detection.defect_detection.fusion_node import (
+    timestamp_delta_seconds,
+)
+from defect_detection.defect_localization.extract_3d_detections import (
+    extract_detections_3d,
+)
 import message_filters
 import numpy as np
 import pytest
@@ -8,14 +15,6 @@ from vision_msgs.msg import (
     Detection2D,
     Detection2DArray,
     ObjectHypothesisWithPose,
-)
-
-from defect_detection.defect_detection.fusion_node import DetectionFusionNode
-from defect_detection.defect_detection.fusion_node import (
-    timestamp_delta_seconds,
-)
-from defect_detection.defect_localization.extract_3d_detections import (
-    extract_detections_3d,
 )
 
 

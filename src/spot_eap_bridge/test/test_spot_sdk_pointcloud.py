@@ -1,7 +1,7 @@
-import numpy as np
-import pytest
 from bosdyn.api import point_cloud_pb2
 from google.protobuf.timestamp_pb2 import Timestamp
+import numpy as np
+import pytest
 
 from spot_eap_bridge.spot_sdk_pointcloud import (
     decode_xyz32,
