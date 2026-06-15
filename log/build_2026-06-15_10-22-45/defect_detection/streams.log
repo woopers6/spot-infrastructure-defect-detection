@@ -1,0 +1,21 @@
+[0.401s] Invoking command in '/home/avaradar/ros2_ws/build/defect_detection': PYTHONPATH=/home/avaradar/ros2_ws/build/defect_detection/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/avaradar/ros2_ws/install/defect_detection/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/avaradar/ros2_ws/build/defect_detection/build --no-deps symlink_data
+[0.559s] running develop
+[0.641s] running egg_info
+[0.648s] writing defect_detection.egg-info/PKG-INFO
+[0.648s] writing dependency_links to defect_detection.egg-info/dependency_links.txt
+[0.648s] writing entry points to defect_detection.egg-info/entry_points.txt
+[0.649s] writing requirements to defect_detection.egg-info/requires.txt
+[0.649s] writing top-level names to defect_detection.egg-info/top_level.txt
+[0.666s] reading manifest file 'defect_detection.egg-info/SOURCES.txt'
+[0.666s] writing manifest file 'defect_detection.egg-info/SOURCES.txt'
+[0.675s] running build_ext
+[0.675s] Creating /home/avaradar/ros2_ws/install/defect_detection/lib/python3.12/site-packages/defect-detection.egg-link (link to .)
+[0.675s] Installing fusion_node script to /home/avaradar/ros2_ws/install/defect_detection/lib/defect_detection
+[0.676s] Installing image_publisher script to /home/avaradar/ros2_ws/install/defect_detection/lib/defect_detection
+[0.676s] Installing image_subscriber script to /home/avaradar/ros2_ws/install/defect_detection/lib/defect_detection
+[0.676s] Installing point_cloud_subscriber script to /home/avaradar/ros2_ws/install/defect_detection/lib/defect_detection
+[0.676s] Installing yolo_detector script to /home/avaradar/ros2_ws/install/defect_detection/lib/defect_detection
+[0.676s] 
+[0.676s] Installed /home/avaradar/ros2_ws/build/defect_detection
+[0.676s] running symlink_data
+[0.695s] Invoked command in '/home/avaradar/ros2_ws/build/defect_detection' returned '0': PYTHONPATH=/home/avaradar/ros2_ws/build/defect_detection/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/avaradar/ros2_ws/install/defect_detection/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/avaradar/ros2_ws/build/defect_detection/build --no-deps symlink_data

@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="publish_camera" default="true"
+       description="Publish frames from the local camera."/>
+  <arg name="image_monitor" default="false"
+       description="Run the simple image subscriber for topic testing."/>
+  <arg name="pointcloud_monitor" default="false"
+       description="Run the simple point-cloud subscriber for topic testing."/>
+  <arg name="detector" default="false"
+       description="Run YOLO. Requires ultralytics and models/yolov11m.engine."/>
+  <arg name="fusion" default="false"
+       description="Run 2D detection and point-cloud fusion."/>
+
+  <node if="$(var publish_camera)"
+        pkg="defect_detection"
+        exec="image_publisher"
+        name="image_publisher"
+        output="screen"/>
+
+  <node if="$(var image_monitor)"
+        pkg="defect_detection"
+        exec="image_subscriber"
+        name="image_subscriber"
+        output="screen"/>
+
+  <node if="$(var pointcloud_monitor)"
+        pkg="defect_detection"
+        exec="point_cloud_subscriber"
+        name="point_cloud_subscriber"
+        output="screen"/>
+
+  <node if="$(var detector)"
+        pkg="defect_detection"
+        exec="yolo_detector"
+        name="yolo_node"
+        cwd="$(find-pkg-share defect_detection)/models"
+        output="screen"/>
+
+  <node if="$(var fusion)"
+        pkg="defect_detection"
+        exec="fusion_node"
+        name="detection_fusion_node"
+        cwd="$(find-pkg-share defect_detection)/models"
+        output="screen"/>
+</launch>

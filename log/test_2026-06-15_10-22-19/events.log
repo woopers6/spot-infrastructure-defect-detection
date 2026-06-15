@@ -1,0 +1,482 @@
+[0.000000] (-) TimerEvent: {}
+[0.000150] (defect_detection) JobQueued: {'identifier': 'defect_detection', 'dependencies': OrderedDict({'defect_detection': '/home/avaradar/ros2_ws/install/defect_detection'})}
+[0.000187] (defect_detection) JobStarted: {'identifier': 'defect_detection'}
+[0.099631] (-) TimerEvent: {}
+[0.159161] (defect_detection) Command: {'cmd': ['/usr/bin/python3', '-m', 'pytest'], 'cwd': '/home/avaradar/ros2_ws/src/defect_detection', 'env': {'LESSOPEN': '| /usr/bin/lesspipe %s', 'VSCODE_CWD': '/mnt/c/Users/AVARADAR/AppData/Local/Programs/Microsoft VS Code', 'VSCODE_ESM_ENTRYPOINT': 'vs/workbench/api/node/extensionHostProcess', 'CODEX_CI': '1', 'USER': 'avaradar', 'CODEX_INTERNAL_ORIGINATOR_OVERRIDE': 'codex_vscode', 'VSCODE_NLS_CONFIG': '{"userLocale":"en","osLocale":"en","resolvedLanguage":"en","defaultMessagesFile":"/home/avaradar/.vscode-server/bin/6928394f91b684055b873eecb8bc281365131f1c/out/nls.messages.json","locale":"en","availableLanguages":{}}', 'VSCODE_WSL_EXT_LOCATION': '/mnt/c/Users/AVARADAR/.vscode/extensions/ms-vscode-remote.remote-wsl-0.104.3', 'VSCODE_HANDLES_UNCAUGHT_ERRORS': 'true', 'DEBUG': 'release', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/opt/ros/jazzy/opt/rviz_ogre_vendor/lib:/opt/ros/jazzy/lib/x86_64-linux-gnu:/opt/ros/jazzy/opt/gz_math_vendor/lib:/opt/ros/jazzy/opt/gz_utils_vendor/lib:/opt/ros/jazzy/opt/gz_cmake_vendor/lib:/opt/ros/jazzy/lib', 'HOME': '/home/avaradar', 'VSCODE_RECONNECTION_GRACE_TIME': '10800000', 'VSCODE_IPC_HOOK_CLI': '/run/user/1000/vscode-ipc-2e0e204c-8de0-4483-97dd-b3b365e832e4.sock', 'ROS_PYTHON_VERSION': '3', 'PAGER': 'cat', 'LC_CTYPE': 'C.UTF-8', 'NO_COLOR': '1', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'COLORTERM': '', 'WSL_DISTRO_NAME': 'Ubuntu-24.04', 'WAYLAND_DISPLAY': 'wayland-0', 'COLCON_PREFIX_PATH': '/home/avaradar/ros2_ws/install', 'APPLICATION_INSIGHTS_NO_STATSBEAT': 'true', 'ROS_DISTRO': 'jazzy', 'LOGNAME': 'avaradar', 'NAME': 'L-B0QV4H4', 'WSL_INTEROP': '/run/WSL/698589_interop', 'VSCODE_HANDLES_SIGPIPE': 'true', 'PULSE_SERVER': 'unix:/mnt/wslg/PulseServer', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'RUST_LOG': 'warn', 'TERM': 'dumb', 'PATH': '/home/avaradar/.codex/tmp/arg0/codex-arg0uvVAm0:/home/avaradar/.vscode-server/bin/6928394f91b684055b873eecb8bc281365131f1c/bin/remote-cli:/opt/ros/jazzy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Oracle/19c_Home/product/19.3/client_1/bin:/mnt/c/oracle/instantclient_12_1:/mnt/c/WINDOWS/CCM/:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/WINDOWS/system32/config/systemprofile/AppData/Local/Microsoft/WindowsApps:/mnt/c/Program Files (x86)/TxDOT/EQPLOT/:/mnt/c/Program Files/dotnet/:/mnt/c/Users/AVARADAR/AppData/Local/Programs/Python/Launcher/:/mnt/c/Users/AVARADAR/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/AVARADAR/AppData/Local/Programs/Git/cmd:/mnt/c/Users/AVARADAR/AppData/Local/Programs/Microsoft VS Code/bin:/snap/bin:/home/avaradar/.vscode-server/extensions/openai.chatgpt-26.609.30741-linux-x64/bin/linux-x86_64', 'XDG_RUNTIME_DIR': '/run/user/1000', 'DISPLAY': ':0', 'CODEX_SANDBOX_NETWORK_DISABLED': '1', 'LANG': 'C.UTF-8', 'GH_PAGER': 'cat', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=00:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.avif=01;35:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:*~=00;90:*#=00;90:*.bak=00;90:*.crdownload=00;90:*.dpkg-dist=00;90:*.dpkg-new=00;90:*.dpkg-old=00;90:*.dpkg-tmp=00;90:*.old=00;90:*.orig=00;90:*.part=00;90:*.rej=00;90:*.rpmnew=00;90:*.rpmorig=00;90:*.rpmsave=00;90:*.swp=00;90:*.tmp=00;90:*.ucf-dist=00;90:*.ucf-new=00;90:*.ucf-old=00;90:', 'AMENT_PREFIX_PATH': '/home/avaradar/ros2_ws/install/defect_detection:/opt/ros/jazzy', 'SHELL': '/bin/bash', 'ELECTRON_RUN_AS_NODE': '1', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'VSCODE_SERVER_TAR': '/mnt/c/Users/AVARADAR/vscode-remote-wsl/stable/6928394f91b684055b873eecb8bc281365131f1c/vscode-server-stable-linux-x64.tar.gz', 'CODEX_THREAD_ID': '019ecbdd-ed90-7ed3-9088-96e141e4fa02', 'ROS_AUTOMATIC_DISCOVERY_RANGE': 'SUBNET', 'GIT_PAGER': 'cat', 'PWD': '/home/avaradar/ros2_ws/build/defect_detection', 'LC_ALL': 'C.UTF-8', 'XDG_DATA_DIRS': '/usr/local/share:/usr/share:/var/lib/snapd/desktop', 'PYTHONPATH': '/home/avaradar/ros2_ws/build/defect_detection:/home/avaradar/ros2_ws/install/defect_detection/lib/python3.12/site-packages:/opt/ros/jazzy/lib/python3.12/site-packages', 'COLCON': '1', 'WSL2_GUI_APPS_ENABLED': '1', 'HOSTTYPE': 'x86_64', 'CMAKE_PREFIX_PATH': '/opt/ros/jazzy/opt/gz_math_vendor:/opt/ros/jazzy/opt/gz_utils_vendor:/opt/ros/jazzy/opt/gz_cmake_vendor', 'WSLENV': 'VSCODE_WSL_EXT_LOCATION/up:VSCODE_SERVER_TAR/up', 'PYTHONDONTWRITEBYTECODE': '1', 'PYTEST_ADDOPTS': '--tb=short --junit-xml=/home/avaradar/ros2_ws/build/defect_detection/pytest.xml --junit-prefix=defect_detection -o cache_dir=/home/avaradar/ros2_ws/build/defect_detection/.pytest_cache'}, 'shell': False}
+[0.199767] (-) TimerEvent: {}
+[0.299952] (-) TimerEvent: {}
+[0.400138] (-) TimerEvent: {}
+[0.459372] (defect_detection) StdoutLine: {'line': b'============================= test session starts ==============================\n'}
+[0.459549] (defect_detection) StdoutLine: {'line': b'platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0\n'}
+[0.459613] (defect_detection) StdoutLine: {'line': b'cachedir: /home/avaradar/ros2_ws/build/defect_detection/.pytest_cache\n'}
+[0.459647] (defect_detection) StdoutLine: {'line': b'rootdir: /home/avaradar/ros2_ws/src/defect_detection\n'}
+[0.459679] (defect_detection) StdoutLine: {'line': b'plugins: launch-testing-3.4.10, ament-pep257-0.17.5, ament-copyright-0.17.5, launch-testing-ros-0.26.11, ament-lint-0.17.5, ament-xmllint-0.17.5, ament-flake8-0.17.5, cov-4.1.0, colcon-core-0.20.1\n'}
+[0.459708] (defect_detection) StdoutLine: {'line': b'collected 3 items\n'}
+[0.459754] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.462842] (defect_detection) StdoutLine: {'line': b'test/test_copyright.py s                                                 [ 33%]\n'}
+[0.500433] (-) TimerEvent: {}
+[0.591357] (defect_detection) StdoutLine: {'line': b'test/test_flake8.py F                                                    [ 66%]\n'}
+[0.600586] (-) TimerEvent: {}
+[0.613464] (defect_detection) StdoutLine: {'line': b'test/test_pep257.py .                                                    [100%]\n'}
+[0.613684] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.613767] (defect_detection) StdoutLine: {'line': b'=================================== FAILURES ===================================\n'}
+[0.613802] (defect_detection) StdoutLine: {'line': b'_________________________________ test_flake8 __________________________________\n'}
+[0.613837] (defect_detection) StdoutLine: {'line': b'test/test_flake8.py:23: in test_flake8\n'}
+[0.613867] (defect_detection) StdoutLine: {'line': b'    assert rc == 0, \\\n'}
+[0.613910] (defect_detection) StdoutLine: {'line': b'E   AssertionError: Found 82 code style errors / warnings:\n'}
+[0.613948] (defect_detection) StdoutLine: {'line': b"E     ./defect_detection/defect_detection/fusion_node.py:1:1: F401 'defect_detection.defect_detection.defect_localization.extract_3d_detections.CustomDetection3D' imported but unused\n"}
+[0.613978] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/fusion_node.py:1:100: E501 line too long (105 > 99 characters)\n'}
+[0.614007] (defect_detection) StdoutLine: {'line': b"E     ./defect_detection/defect_detection/fusion_node.py:6:1: I100 Import statements are in the wrong order. 'import message_filters' should be before 'from rclpy.qos import qos_profile_sensor_data'\n"}
+[0.614034] (defect_detection) StdoutLine: {'line': b"E     ./defect_detection/defect_detection/fusion_node.py:10:1: I100 Import statements are in the wrong order. 'from sensor_msgs.msg import PointCloud2' should be before 'import yaml'\n"}
+[0.614060] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/fusion_node.py:11:1: I101 Imported names are in the wrong order. Should be BoundingBox3D, Detection2DArray, Detection3D, Detection3DArray, ObjectHypothesisWithPose\n'}
+[0.614088] (defect_detection) StdoutLine: {'line': b"E     ./defect_detection/defect_detection/fusion_node.py:19:1: I100 Import statements are in the wrong order. 'from defect_localization import extract_detections_3d' should be before 'from vision_msgs.msg import Detection2DArray, Detection3DArray, Detection3D, BoundingBox3D, ObjectHypothesisWithPose'\n"}
+[0.614116] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/fusion_node.py:25:26: Q000 Double quotes found but single quotes preferred\n'}
+[0.614173] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/fusion_node.py:27:19: Q000 Double quotes found but single quotes preferred\n'}
+[0.614276] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/fusion_node.py:27:35: Q000 Double quotes found but single quotes preferred\n'}
+[0.614333] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/fusion_node.py:30:22: Q000 Double quotes found but single quotes preferred\n'}
+[0.614365] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/fusion_node.py:39:44: E261 at least two spaces before inline comment\n'}
+[0.614396] (defect_detection) StdoutLine: {'line': b"E     ./defect_detection/defect_detection/fusion_node.py:39:45: E262 inline comment should start with '# '\n"}
+[0.614423] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/fusion_node.py:45:61: E261 at least two spaces before inline comment\n'}
+[0.614450] (defect_detection) StdoutLine: {'line': b"E     ./defect_detection/defect_detection/fusion_node.py:45:62: E262 inline comment should start with '# '\n"}
+[0.614475] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/fusion_node.py:45:100: E501 line too long (133 > 99 characters)\n'}
+[0.614500] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/fusion_node.py:52:13: Q000 Double quotes found but single quotes preferred\n'}
+[0.614563] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/fusion_node.py:59:13: Q000 Double quotes found but single quotes preferred\n'}
+[0.614590] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/fusion_node.py:66:13: Q000 Double quotes found but single quotes preferred\n'}
+[0.614619] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/fusion_node.py:84:13: Q000 Double quotes found but single quotes preferred\n'}
+[0.614646] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/fusion_node.py:93:13: Q000 Double quotes found but single quotes preferred\n'}
+[0.614671] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/fusion_node.py:123:13: Q000 Double quotes found but single quotes preferred\n'}
+[0.614697] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/fusion_node.py:124:13: Q000 Double quotes found but single quotes preferred\n'}
+[0.614721] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/fusion_node.py:198:16: Q000 Double quotes found but single quotes preferred\n'}
+[0.614753] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/fusion_node.py:199:11: W292 no newline at end of file\n'}
+[0.614778] (defect_detection) StdoutLine: {'line': b"E     ./defect_detection/defect_detection/yolo_detector.py:5:1: I100 Import statements are in the wrong order. 'import numpy' should be before 'import yaml'\n"}
+[0.614803] (defect_detection) StdoutLine: {'line': b"E     ./defect_detection/defect_detection/yolo_detector.py:8:1: I100 Import statements are in the wrong order. 'from cv_bridge import CvBridge' should be before 'from ultralytics import YOLO'\n"}
+[0.614827] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/yolo_detector.py:10:1: I101 Imported names are in the wrong order. Should be Detection2D, Detection2DArray, ObjectHypothesisWithPose\n'}
+[0.614851] (defect_detection) StdoutLine: {'line': b"E     ./defect_detection/defect_detection/yolo_detector.py:11:1: I100 Import statements are in the wrong order. 'from vision_msgs.msg import BoundingBox2D' should be before 'from vision_msgs.msg import Detection2DArray, Detection2D, ObjectHypothesisWithPose'\n"}
+[0.614890] (defect_detection) StdoutLine: {'line': b"E     ./defect_detection/defect_detection/yolo_detector.py:12:1: I100 Import statements are in the wrong order. 'from rclpy.qos import qos_profile_sensor_data' should be before 'from vision_msgs.msg import BoundingBox2D'\n"}
+[0.614926] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/yolo_detector.py:17:26: Q000 Double quotes found but single quotes preferred\n'}
+[0.615001] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/yolo_detector.py:18:19: Q000 Double quotes found but single quotes preferred\n'}
+[0.615041] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/yolo_detector.py:18:35: Q000 Double quotes found but single quotes preferred\n'}
+[0.615068] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/yolo_detector.py:20:22: Q000 Double quotes found but single quotes preferred\n'}
+[0.615094] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/yolo_detector.py:29:34: Q000 Double quotes found but single quotes preferred\n'}
+[0.615121] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/yolo_detector.py:32:27: Q000 Double quotes found but single quotes preferred\n'}
+[0.615148] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/yolo_detector.py:37:13: Q000 Double quotes found but single quotes preferred\n'}
+[0.615185] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/yolo_detector.py:44:13: Q000 Double quotes found but single quotes preferred\n'}
+[0.615222] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/yolo_detector.py:51:30: Q000 Double quotes found but single quotes preferred\n'}
+[0.615250] (defect_detection) StdoutLine: {'line': b"E     ./defect_detection/defect_detection/yolo_detector.py:58:9: E265 block comment should start with '# '\n"}
+[0.615278] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/yolo_detector.py:58:100: E501 line too long (115 > 99 characters)\n'}
+[0.615318] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/yolo_detector.py:113:16: Q000 Double quotes found but single quotes preferred\n'}
+[0.615350] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_detection/yolo_detector.py:114:11: W292 no newline at end of file\n'}
+[0.615390] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_localization/extract_3d_detections.py:48:22: Q000 Double quotes found but single quotes preferred\n'}
+[0.615428] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_localization/extract_3d_detections.py:48:27: Q000 Double quotes found but single quotes preferred\n'}
+[0.615471] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_localization/extract_3d_detections.py:48:32: Q000 Double quotes found but single quotes preferred\n'}
+[0.615515] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_localization/extract_3d_detections.py:68:26: Q000 Double quotes found but single quotes preferred\n'}
+[0.615548] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_localization/extract_3d_detections.py:83:26: Q000 Double quotes found but single quotes preferred\n'}
+[0.615580] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_localization/extract_3d_detections.py:125:21: Q000 Double quotes found but single quotes preferred\n'}
+[0.615608] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_localization/extract_3d_detections.py:125:51: Q000 Double quotes found but single quotes preferred\n'}
+[0.615635] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_localization/extract_3d_detections.py:139:21: Q000 Double quotes found but single quotes preferred\n'}
+[0.615661] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_localization/extract_3d_detections.py:142:26: Q000 Double quotes found but single quotes preferred\n'}
+[0.615687] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_localization/extract_3d_detections.py:153:26: Q000 Double quotes found but single quotes preferred\n'}
+[0.615712] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_localization/extract_3d_detections.py:160:21: Q000 Double quotes found but single quotes preferred\n'}
+[0.615738] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_localization/extract_3d_detections.py:164:25: Q000 Double quotes found but single quotes preferred\n'}
+[0.615769] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_localization/extract_3d_detections.py:168:22: Q000 Double quotes found but single quotes preferred\n'}
+[0.615795] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_localization/extract_3d_detections.py:178:21: Q000 Double quotes found but single quotes preferred\n'}
+[0.615841] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_localization/extract_3d_detections.py:186:25: Q000 Double quotes found but single quotes preferred\n'}
+[0.615867] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_localization/extract_3d_detections.py:190:21: Q000 Double quotes found but single quotes preferred\n'}
+[0.615892] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_localization/extract_3d_detections.py:200:16: Q000 Double quotes found but single quotes preferred\n'}
+[0.615919] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/defect_localization/extract_3d_detections.py:233:1: E302 expected 2 blank lines, found 1\n'}
+[0.615960] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/pointcloud_loading/point_cloud_subscriber.py:15:36: E261 at least two spaces before inline comment\n'}
+[0.616019] (defect_detection) StdoutLine: {'line': b"E     ./defect_detection/pointcloud_loading/point_cloud_subscriber.py:15:37: E262 inline comment should start with '# '\n"}
+[0.616086] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/pointcloud_loading/point_cloud_subscriber.py:23:100: E501 line too long (104 > 99 characters)\n'}
+[0.616119] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/pointcloud_loading/point_cloud_subscriber.py:28:1: W293 blank line contains whitespace\n'}
+[0.616187] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/pointcloud_loading/point_cloud_subscriber.py:42:11: W292 no newline at end of file\n'}
+[0.616223] (defect_detection) StdoutLine: {'line': b"E     ./defect_detection/spot_cam_loading/image_publisher.py:4:1: I100 Import statements are in the wrong order. 'import cv2' should be before 'from rclpy.node import Node'\n"}
+[0.616250] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/spot_cam_loading/image_publisher.py:19:37: Q000 Double quotes found but single quotes preferred\n'}
+[0.616277] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/spot_cam_loading/image_publisher.py:21:66: W291 trailing whitespace\n'}
+[0.616301] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/spot_cam_loading/image_publisher.py:27:36: Q000 Double quotes found but single quotes preferred\n'}
+[0.616325] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/spot_cam_loading/image_publisher.py:31:68: Q000 Double quotes found but single quotes preferred\n'}
+[0.616348] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/spot_cam_loading/image_publisher.py:33:42: Q000 Double quotes found but single quotes preferred\n'}
+[0.616373] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/spot_cam_loading/image_publisher.py:53:11: W292 no newline at end of file\n'}
+[0.616398] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/spot_cam_loading/image_subscriber.py:18:5: E301 expected 1 blank line, found 0\n'}
+[0.616423] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/spot_cam_loading/image_subscriber.py:21:13: F541 f-string is missing placeholders\n'}
+[0.616449] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/spot_cam_loading/image_subscriber.py:23:5: E301 expected 1 blank line, found 0\n'}
+[0.616475] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/spot_cam_loading/image_subscriber.py:25:1: W293 blank line contains whitespace\n'}
+[0.616501] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/spot_cam_loading/image_subscriber.py:26:1: E302 expected 2 blank lines, found 1\n'}
+[0.616529] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/spot_cam_loading/image_subscriber.py:38:6: E111 indentation is not a multiple of 4\n'}
+[0.616557] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/spot_cam_loading/image_subscriber.py:38:6: E117 over-indented\n'}
+[0.616580] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/spot_cam_loading/image_subscriber.py:39:1: W293 blank line contains whitespace\n'}
+[0.616605] (defect_detection) StdoutLine: {'line': b'E     ./defect_detection/spot_cam_loading/image_subscriber.py:40:1: W391 blank line at end of file\n'}
+[0.616629] (defect_detection) StdoutLine: {'line': b'E     ./setup.py:41:100: E501 line too long (103 > 99 characters)\n'}
+[0.616653] (defect_detection) StdoutLine: {'line': b'E   assert 1 == 0\n'}
+[0.616677] (defect_detection) StdoutLine: {'line': b'----------------------------- Captured stdout call -----------------------------\n'}
+[0.616705] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.616732] (defect_detection) StdoutLine: {'line': b"./defect_detection/defect_detection/fusion_node.py:1:1: F401 'defect_detection.defect_detection.defect_localization.extract_3d_detections.CustomDetection3D' imported but unused\n"}
+[0.616771] (defect_detection) StdoutLine: {'line': b'from defect_detection.defect_detection.defect_localization.extract_3d_detections import CustomDetection3D\n'}
+[0.616811] (defect_detection) StdoutLine: {'line': b'^\n'}
+[0.616839] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.616879] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/fusion_node.py:1:100: E501 line too long (105 > 99 characters)\n'}
+[0.616935] (defect_detection) StdoutLine: {'line': b'from defect_detection.defect_detection.defect_localization.extract_3d_detections import CustomDetection3D\n'}
+[0.616984] (defect_detection) StdoutLine: {'line': b'                                                                                                   ^\n'}
+[0.617046] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.617085] (defect_detection) StdoutLine: {'line': b"./defect_detection/defect_detection/fusion_node.py:6:1: I100 Import statements are in the wrong order. 'import message_filters' should be before 'from rclpy.qos import qos_profile_sensor_data'\n"}
+[0.617119] (defect_detection) StdoutLine: {'line': b'import message_filters\n'}
+[0.617147] (defect_detection) StdoutLine: {'line': b'^\n'}
+[0.617175] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.617202] (defect_detection) StdoutLine: {'line': b"./defect_detection/defect_detection/fusion_node.py:10:1: I100 Import statements are in the wrong order. 'from sensor_msgs.msg import PointCloud2' should be before 'import yaml'\n"}
+[0.617229] (defect_detection) StdoutLine: {'line': b'from sensor_msgs.msg import PointCloud2\n'}
+[0.617255] (defect_detection) StdoutLine: {'line': b'^\n'}
+[0.617282] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.617308] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/fusion_node.py:11:1: I101 Imported names are in the wrong order. Should be BoundingBox3D, Detection2DArray, Detection3D, Detection3DArray, ObjectHypothesisWithPose\n'}
+[0.617335] (defect_detection) StdoutLine: {'line': b'from vision_msgs.msg import (\n'}
+[0.617362] (defect_detection) StdoutLine: {'line': b'^\n'}
+[0.617386] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.617425] (defect_detection) StdoutLine: {'line': b"./defect_detection/defect_detection/fusion_node.py:19:1: I100 Import statements are in the wrong order. 'from defect_localization import extract_detections_3d' should be before 'from vision_msgs.msg import Detection2DArray, Detection3DArray, Detection3D, BoundingBox3D, ObjectHypothesisWithPose'\n"}
+[0.617466] (defect_detection) StdoutLine: {'line': b'from defect_localization import extract_detections_3d\n'}
+[0.617515] (defect_detection) StdoutLine: {'line': b'^\n'}
+[0.617551] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.617622] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/fusion_node.py:25:26: Q000 Double quotes found but single quotes preferred\n'}
+[0.617655] (defect_detection) StdoutLine: {'line': b'        super().__init__("detection_fusion_node")\n'}
+[0.617682] (defect_detection) StdoutLine: {'line': b'                         ^\n'}
+[0.617707] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.617731] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/fusion_node.py:27:19: Q000 Double quotes found but single quotes preferred\n'}
+[0.617756] (defect_detection) StdoutLine: {'line': b'        with open("dataset.yaml", "r") as file:\n'}
+[0.617782] (defect_detection) StdoutLine: {'line': b'                  ^\n'}
+[0.617809] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.617835] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/fusion_node.py:27:35: Q000 Double quotes found but single quotes preferred\n'}
+[0.617861] (defect_detection) StdoutLine: {'line': b'        with open("dataset.yaml", "r") as file:\n'}
+[0.617888] (defect_detection) StdoutLine: {'line': b'                                  ^\n'}
+[0.617916] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.617943] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/fusion_node.py:30:22: Q000 Double quotes found but single quotes preferred\n'}
+[0.617991] (defect_detection) StdoutLine: {'line': b'        names = data["names"]\n'}
+[0.618021] (defect_detection) StdoutLine: {'line': b'                     ^\n'}
+[0.618065] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.618117] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/fusion_node.py:39:44: E261 at least two spaces before inline comment\n'}
+[0.618155] (defect_detection) StdoutLine: {'line': b'        self.intrinsics_matrix = np.array([ #TODO: replace with actual intrinsics\n'}
+[0.618182] (defect_detection) StdoutLine: {'line': b'                                           ^\n'}
+[0.618213] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.618239] (defect_detection) StdoutLine: {'line': b"./defect_detection/defect_detection/fusion_node.py:39:45: E262 inline comment should start with '# '\n"}
+[0.618278] (defect_detection) StdoutLine: {'line': b'        self.intrinsics_matrix = np.array([ #TODO: replace with actual intrinsics\n'}
+[0.618327] (defect_detection) StdoutLine: {'line': b'                                            ^\n'}
+[0.618375] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.618416] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/fusion_node.py:45:61: E261 at least two spaces before inline comment\n'}
+[0.618442] (defect_detection) StdoutLine: {'line': b'        self.T_lidar_to_camera = np.eye(4, dtype=np.float64) #TODO: replace with actual extrinsic transformation from lidar to camera\n'}
+[0.618470] (defect_detection) StdoutLine: {'line': b'                                                            ^\n'}
+[0.618508] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.618573] (defect_detection) StdoutLine: {'line': b"./defect_detection/defect_detection/fusion_node.py:45:62: E262 inline comment should start with '# '\n"}
+[0.618634] (defect_detection) StdoutLine: {'line': b'        self.T_lidar_to_camera = np.eye(4, dtype=np.float64) #TODO: replace with actual extrinsic transformation from lidar to camera\n'}
+[0.618674] (defect_detection) StdoutLine: {'line': b'                                                             ^\n'}
+[0.618714] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.618750] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/fusion_node.py:45:100: E501 line too long (133 > 99 characters)\n'}
+[0.618776] (defect_detection) StdoutLine: {'line': b'        self.T_lidar_to_camera = np.eye(4, dtype=np.float64) #TODO: replace with actual extrinsic transformation from lidar to camera\n'}
+[0.618803] (defect_detection) StdoutLine: {'line': b'                                                                                                   ^\n'}
+[0.618831] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.618857] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/fusion_node.py:52:13: Q000 Double quotes found but single quotes preferred\n'}
+[0.618885] (defect_detection) StdoutLine: {'line': b'            "/detections_3d",\n'}
+[0.618909] (defect_detection) StdoutLine: {'line': b'            ^\n'}
+[0.618933] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.618971] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/fusion_node.py:59:13: Q000 Double quotes found but single quotes preferred\n'}
+[0.619018] (defect_detection) StdoutLine: {'line': b'            "/detections_2d",\n'}
+[0.619063] (defect_detection) StdoutLine: {'line': b'            ^\n'}
+[0.619101] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.619142] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/fusion_node.py:66:13: Q000 Double quotes found but single quotes preferred\n'}
+[0.619176] (defect_detection) StdoutLine: {'line': b'            "/velodyne/points",\n'}
+[0.619213] (defect_detection) StdoutLine: {'line': b'            ^\n'}
+[0.619249] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.619276] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/fusion_node.py:84:13: Q000 Double quotes found but single quotes preferred\n'}
+[0.619334] (defect_detection) StdoutLine: {'line': b'            "Fusion node started. Publishing on /detections_3d"\n'}
+[0.619380] (defect_detection) StdoutLine: {'line': b'            ^\n'}
+[0.619418] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.619448] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/fusion_node.py:93:13: Q000 Double quotes found but single quotes preferred\n'}
+[0.619502] (defect_detection) StdoutLine: {'line': b'            "Received synchronized detection and point-cloud pair"\n'}
+[0.619552] (defect_detection) StdoutLine: {'line': b'            ^\n'}
+[0.619582] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.619619] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/fusion_node.py:123:13: Q000 Double quotes found but single quotes preferred\n'}
+[0.619658] (defect_detection) StdoutLine: {'line': b'            f"Published {len(output_msg.detections)} detections "\n'}
+[0.619685] (defect_detection) StdoutLine: {'line': b'            ^\n'}
+[0.619711] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.619737] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/fusion_node.py:124:13: Q000 Double quotes found but single quotes preferred\n'}
+[0.619765] (defect_detection) StdoutLine: {'line': b'            f"to /detections_3d"\n'}
+[0.619794] (defect_detection) StdoutLine: {'line': b'            ^\n'}
+[0.619820] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.619857] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/fusion_node.py:198:16: Q000 Double quotes found but single quotes preferred\n'}
+[0.619894] (defect_detection) StdoutLine: {'line': b'if __name__ == "__main__":\n'}
+[0.619921] (defect_detection) StdoutLine: {'line': b'               ^\n'}
+[0.619949] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.620007] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/fusion_node.py:199:11: W292 no newline at end of file\n'}
+[0.620065] (defect_detection) StdoutLine: {'line': b'    main()          ^\n'}
+[0.620095] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.620125] (defect_detection) StdoutLine: {'line': b"./defect_detection/defect_detection/yolo_detector.py:5:1: I100 Import statements are in the wrong order. 'import numpy' should be before 'import yaml'\n"}
+[0.620151] (defect_detection) StdoutLine: {'line': b'import numpy as np\n'}
+[0.620181] (defect_detection) StdoutLine: {'line': b'^\n'}
+[0.620235] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.620265] (defect_detection) StdoutLine: {'line': b"./defect_detection/defect_detection/yolo_detector.py:8:1: I100 Import statements are in the wrong order. 'from cv_bridge import CvBridge' should be before 'from ultralytics import YOLO'\n"}
+[0.620315] (defect_detection) StdoutLine: {'line': b'from cv_bridge import CvBridge\n'}
+[0.620344] (defect_detection) StdoutLine: {'line': b'^\n'}
+[0.620374] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.620399] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/yolo_detector.py:10:1: I101 Imported names are in the wrong order. Should be Detection2D, Detection2DArray, ObjectHypothesisWithPose\n'}
+[0.620447] (defect_detection) StdoutLine: {'line': b'from vision_msgs.msg import Detection2DArray, Detection2D, ObjectHypothesisWithPose\n'}
+[0.620478] (defect_detection) StdoutLine: {'line': b'^\n'}
+[0.620505] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.620534] (defect_detection) StdoutLine: {'line': b"./defect_detection/defect_detection/yolo_detector.py:11:1: I100 Import statements are in the wrong order. 'from vision_msgs.msg import BoundingBox2D' should be before 'from vision_msgs.msg import Detection2DArray, Detection2D, ObjectHypothesisWithPose'\n"}
+[0.620560] (defect_detection) StdoutLine: {'line': b'from vision_msgs.msg import BoundingBox2D\n'}
+[0.620608] (defect_detection) StdoutLine: {'line': b'^\n'}
+[0.620660] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.620711] (defect_detection) StdoutLine: {'line': b"./defect_detection/defect_detection/yolo_detector.py:12:1: I100 Import statements are in the wrong order. 'from rclpy.qos import qos_profile_sensor_data' should be before 'from vision_msgs.msg import BoundingBox2D'\n"}
+[0.620744] (defect_detection) StdoutLine: {'line': b'from rclpy.qos import qos_profile_sensor_data\n'}
+[0.620771] (defect_detection) StdoutLine: {'line': b'^\n'}
+[0.620810] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.620851] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/yolo_detector.py:17:26: Q000 Double quotes found but single quotes preferred\n'}
+[0.620881] (defect_detection) StdoutLine: {'line': b'        super().__init__("yolo_node")\n'}
+[0.620931] (defect_detection) StdoutLine: {'line': b'                         ^\n'}
+[0.620962] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.621010] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/yolo_detector.py:18:19: Q000 Double quotes found but single quotes preferred\n'}
+[0.621061] (defect_detection) StdoutLine: {'line': b'        with open("dataset.yaml", "r") as file:\n'}
+[0.621091] (defect_detection) StdoutLine: {'line': b'                  ^\n'}
+[0.621151] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.621210] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/yolo_detector.py:18:35: Q000 Double quotes found but single quotes preferred\n'}
+[0.621243] (defect_detection) StdoutLine: {'line': b'        with open("dataset.yaml", "r") as file:\n'}
+[0.621297] (defect_detection) StdoutLine: {'line': b'                                  ^\n'}
+[0.621328] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.621394] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/yolo_detector.py:20:22: Q000 Double quotes found but single quotes preferred\n'}
+[0.621461] (defect_detection) StdoutLine: {'line': b'        names = data["names"]\n'}
+[0.621534] (defect_detection) StdoutLine: {'line': b'                     ^\n'}
+[0.621591] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.621638] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/yolo_detector.py:29:34: Q000 Double quotes found but single quotes preferred\n'}
+[0.621671] (defect_detection) StdoutLine: {'line': b'        self.classes = list(data["names"])\n'}
+[0.621696] (defect_detection) StdoutLine: {'line': b'                                 ^\n'}
+[0.621721] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.621745] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/yolo_detector.py:32:27: Q000 Double quotes found but single quotes preferred\n'}
+[0.621769] (defect_detection) StdoutLine: {'line': b'        self.model = YOLO("yolov11m.engine")\n'}
+[0.621793] (defect_detection) StdoutLine: {'line': b'                          ^\n'}
+[0.621817] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.621841] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/yolo_detector.py:37:13: Q000 Double quotes found but single quotes preferred\n'}
+[0.621866] (defect_detection) StdoutLine: {'line': b'            "/ros2_image",\n'}
+[0.621892] (defect_detection) StdoutLine: {'line': b'            ^\n'}
+[0.621917] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.621943] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/yolo_detector.py:44:13: Q000 Double quotes found but single quotes preferred\n'}
+[0.622000] (defect_detection) StdoutLine: {'line': b'            "/detections_2d",\n'}
+[0.622040] (defect_detection) StdoutLine: {'line': b'            ^\n'}
+[0.622115] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.622217] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/yolo_detector.py:51:30: Q000 Double quotes found but single quotes preferred\n'}
+[0.622268] (defect_detection) StdoutLine: {'line': b'            desired_encoding="bgr8"\n'}
+[0.622304] (defect_detection) StdoutLine: {'line': b'                             ^\n'}
+[0.622351] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.622393] (defect_detection) StdoutLine: {'line': b"./defect_detection/defect_detection/yolo_detector.py:58:9: E265 block comment should start with '# '\n"}
+[0.622423] (defect_detection) StdoutLine: {'line': b"        #IMPORTANT IMPORTANT IMPORTANT preserve original image capture timestamp, time syncing won't work otherwise\n"}
+[0.622464] (defect_detection) StdoutLine: {'line': b'        ^\n'}
+[0.622497] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.622524] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/yolo_detector.py:58:100: E501 line too long (115 > 99 characters)\n'}
+[0.622551] (defect_detection) StdoutLine: {'line': b"        #IMPORTANT IMPORTANT IMPORTANT preserve original image capture timestamp, time syncing won't work otherwise\n"}
+[0.622579] (defect_detection) StdoutLine: {'line': b'                                                                                                   ^\n'}
+[0.622633] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.622667] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/yolo_detector.py:113:16: Q000 Double quotes found but single quotes preferred\n'}
+[0.622701] (defect_detection) StdoutLine: {'line': b'if __name__ == "__main__":\n'}
+[0.622729] (defect_detection) StdoutLine: {'line': b'               ^\n'}
+[0.622759] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.622787] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_detection/yolo_detector.py:114:11: W292 no newline at end of file\n'}
+[0.622818] (defect_detection) StdoutLine: {'line': b'    main()          ^\n'}
+[0.622843] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.622870] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_localization/extract_3d_detections.py:48:22: Q000 Double quotes found but single quotes preferred\n'}
+[0.622900] (defect_detection) StdoutLine: {'line': b'        field_names=("x", "y", "z"),\n'}
+[0.622926] (defect_detection) StdoutLine: {'line': b'                     ^\n'}
+[0.622985] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.623050] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_localization/extract_3d_detections.py:48:27: Q000 Double quotes found but single quotes preferred\n'}
+[0.623080] (defect_detection) StdoutLine: {'line': b'        field_names=("x", "y", "z"),\n'}
+[0.623137] (defect_detection) StdoutLine: {'line': b'                          ^\n'}
+[0.623360] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.623458] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_localization/extract_3d_detections.py:48:32: Q000 Double quotes found but single quotes preferred\n'}
+[0.623552] (defect_detection) StdoutLine: {'line': b'        field_names=("x", "y", "z"),\n'}
+[0.623597] (defect_detection) StdoutLine: {'line': b'                               ^\n'}
+[0.623632] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.623715] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_localization/extract_3d_detections.py:68:26: Q000 Double quotes found but single quotes preferred\n'}
+[0.623774] (defect_detection) StdoutLine: {'line': b'        raise ValueError(f"Expected 4x4 transform, got shape {transform_4x4.shape}")\n'}
+[0.623825] (defect_detection) StdoutLine: {'line': b'                         ^\n'}
+[0.623868] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.623928] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_localization/extract_3d_detections.py:83:26: Q000 Double quotes found but single quotes preferred\n'}
+[0.623968] (defect_detection) StdoutLine: {'line': b'        raise ValueError(f"Expected 3x3 intrinsics, got shape {intrinsics_3x3.shape}")\n'}
+[0.624075] (defect_detection) StdoutLine: {'line': b'                         ^\n'}
+[0.624471] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.624508] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_localization/extract_3d_detections.py:125:21: Q000 Double quotes found but single quotes preferred\n'}
+[0.624541] (defect_detection) StdoutLine: {'line': b'    if hasattr(box, "bbox") and hasattr(box.bbox, "center"):\n'}
+[0.624574] (defect_detection) StdoutLine: {'line': b'                    ^\n'}
+[0.624602] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.624641] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_localization/extract_3d_detections.py:125:51: Q000 Double quotes found but single quotes preferred\n'}
+[0.624680] (defect_detection) StdoutLine: {'line': b'    if hasattr(box, "bbox") and hasattr(box.bbox, "center"):\n'}
+[0.624710] (defect_detection) StdoutLine: {'line': b'                                                  ^\n'}
+[0.624804] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.624857] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_localization/extract_3d_detections.py:139:21: Q000 Double quotes found but single quotes preferred\n'}
+[0.624888] (defect_detection) StdoutLine: {'line': b'    if hasattr(box, "xyxy"):\n'}
+[0.624992] (defect_detection) StdoutLine: {'line': b'                    ^\n'}
+[0.625047] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.625081] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_localization/extract_3d_detections.py:142:26: Q000 Double quotes found but single quotes preferred\n'}
+[0.625115] (defect_detection) StdoutLine: {'line': b'        if hasattr(xyxy, "detach"):\n'}
+[0.625146] (defect_detection) StdoutLine: {'line': b'                         ^\n'}
+[0.625174] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.625202] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_localization/extract_3d_detections.py:153:26: Q000 Double quotes found but single quotes preferred\n'}
+[0.625231] (defect_detection) StdoutLine: {'line': b'        raise ValueError("Bounding box must contain at least 4 values: x1, y1, x2, y2")\n'}
+[0.625258] (defect_detection) StdoutLine: {'line': b'                         ^\n'}
+[0.625287] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.625314] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_localization/extract_3d_detections.py:160:21: Q000 Double quotes found but single quotes preferred\n'}
+[0.625342] (defect_detection) StdoutLine: {'line': b'    if hasattr(box, "results") and len(box.results) > 0:\n'}
+[0.625386] (defect_detection) StdoutLine: {'line': b'                    ^\n'}
+[0.625423] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.625452] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_localization/extract_3d_detections.py:164:25: Q000 Double quotes found but single quotes preferred\n'}
+[0.625479] (defect_detection) StdoutLine: {'line': b'    if not hasattr(box, "conf"):\n'}
+[0.625517] (defect_detection) StdoutLine: {'line': b'                        ^\n'}
+[0.625566] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.625634] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_localization/extract_3d_detections.py:168:22: Q000 Double quotes found but single quotes preferred\n'}
+[0.625665] (defect_detection) StdoutLine: {'line': b'    if hasattr(conf, "detach"):\n'}
+[0.625692] (defect_detection) StdoutLine: {'line': b'                     ^\n'}
+[0.625730] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.625771] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_localization/extract_3d_detections.py:178:21: Q000 Double quotes found but single quotes preferred\n'}
+[0.625804] (defect_detection) StdoutLine: {'line': b'    if hasattr(box, "results") and len(box.results) > 0:\n'}
+[0.625846] (defect_detection) StdoutLine: {'line': b'                    ^\n'}
+[0.625895] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.625935] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_localization/extract_3d_detections.py:186:25: Q000 Double quotes found but single quotes preferred\n'}
+[0.625978] (defect_detection) StdoutLine: {'line': b'    if not hasattr(box, "cls"):\n'}
+[0.626016] (defect_detection) StdoutLine: {'line': b'                        ^\n'}
+[0.626045] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.626073] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_localization/extract_3d_detections.py:190:21: Q000 Double quotes found but single quotes preferred\n'}
+[0.626103] (defect_detection) StdoutLine: {'line': b'    if hasattr(cls, "detach"):\n'}
+[0.626139] (defect_detection) StdoutLine: {'line': b'                    ^\n'}
+[0.626173] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.626204] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_localization/extract_3d_detections.py:200:16: Q000 Double quotes found but single quotes preferred\n'}
+[0.626244] (defect_detection) StdoutLine: {'line': b'        return "unknown"\n'}
+[0.626274] (defect_detection) StdoutLine: {'line': b'               ^\n'}
+[0.626303] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.626335] (defect_detection) StdoutLine: {'line': b'./defect_detection/defect_localization/extract_3d_detections.py:233:1: E302 expected 2 blank lines, found 1\n'}
+[0.626368] (defect_detection) StdoutLine: {'line': b'def extract_xyxy_from_detection2d(detection) -> tuple[int, int, int, int]:\n'}
+[0.626410] (defect_detection) StdoutLine: {'line': b'^\n'}
+[0.626448] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.626477] (defect_detection) StdoutLine: {'line': b'./defect_detection/pointcloud_loading/point_cloud_subscriber.py:15:36: E261 at least two spaces before inline comment\n'}
+[0.626504] (defect_detection) StdoutLine: {'line': b"            'spot/velodyne/points', #TODO: make sure that this is correct topic\n"}
+[0.626530] (defect_detection) StdoutLine: {'line': b'                                   ^\n'}
+[0.626558] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.626586] (defect_detection) StdoutLine: {'line': b"./defect_detection/pointcloud_loading/point_cloud_subscriber.py:15:37: E262 inline comment should start with '# '\n"}
+[0.626615] (defect_detection) StdoutLine: {'line': b"            'spot/velodyne/points', #TODO: make sure that this is correct topic\n"}
+[0.626668] (defect_detection) StdoutLine: {'line': b'                                    ^\n'}
+[0.626712] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.626775] (defect_detection) StdoutLine: {'line': b'./defect_detection/pointcloud_loading/point_cloud_subscriber.py:23:100: E501 line too long (104 > 99 characters)\n'}
+[0.626824] (defect_detection) StdoutLine: {'line': b"            f'Received point cloud: width={msg.width}, height={msg.height}, frame={msg.header.frame_id}'\n"}
+[0.626868] (defect_detection) StdoutLine: {'line': b'                                                                                                   ^\n'}
+[0.626927] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.626980] (defect_detection) StdoutLine: {'line': b'./defect_detection/pointcloud_loading/point_cloud_subscriber.py:28:1: W293 blank line contains whitespace\n'}
+[0.627048] (defect_detection) StdoutLine: {'line': b'    \n'}
+[0.627085] (defect_detection) StdoutLine: {'line': b'^\n'}
+[0.627114] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.627152] (defect_detection) StdoutLine: {'line': b'./defect_detection/pointcloud_loading/point_cloud_subscriber.py:42:11: W292 no newline at end of file\n'}
+[0.627205] (defect_detection) StdoutLine: {'line': b'    main()          ^\n'}
+[0.627257] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.627305] (defect_detection) StdoutLine: {'line': b"./defect_detection/spot_cam_loading/image_publisher.py:4:1: I100 Import statements are in the wrong order. 'import cv2' should be before 'from rclpy.node import Node'\n"}
+[0.627349] (defect_detection) StdoutLine: {'line': b'import cv2\n'}
+[0.627378] (defect_detection) StdoutLine: {'line': b'^\n'}
+[0.627404] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.627444] (defect_detection) StdoutLine: {'line': b'./defect_detection/spot_cam_loading/image_publisher.py:19:37: Q000 Double quotes found but single quotes preferred\n'}
+[0.627502] (defect_detection) StdoutLine: {'line': b'            self.get_logger().error("Could not open camera.")\n'}
+[0.627547] (defect_detection) StdoutLine: {'line': b'                                    ^\n'}
+[0.627588] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.627631] (defect_detection) StdoutLine: {'line': b'./defect_detection/spot_cam_loading/image_publisher.py:21:66: W291 trailing whitespace\n'}
+[0.627673] (defect_detection) StdoutLine: {'line': b'        self.timer = self.create_timer(0.033, self.publish_image) \n'}
+[0.627707] (defect_detection) StdoutLine: {'line': b'                                                                 ^\n'}
+[0.627760] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.627802] (defect_detection) StdoutLine: {'line': b'./defect_detection/spot_cam_loading/image_publisher.py:27:36: Q000 Double quotes found but single quotes preferred\n'}
+[0.627843] (defect_detection) StdoutLine: {'line': b'            self.get_logger().warn("Failed to capture frame.")\n'}
+[0.627872] (defect_detection) StdoutLine: {'line': b'                                   ^\n'}
+[0.627910] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.627957] (defect_detection) StdoutLine: {'line': b'./defect_detection/spot_cam_loading/image_publisher.py:31:68: Q000 Double quotes found but single quotes preferred\n'}
+[0.627996] (defect_detection) StdoutLine: {'line': b'        ros2_image_msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")\n'}
+[0.628053] (defect_detection) StdoutLine: {'line': b'                                                                   ^\n'}
+[0.628092] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.628121] (defect_detection) StdoutLine: {'line': b'./defect_detection/spot_cam_loading/image_publisher.py:33:42: Q000 Double quotes found but single quotes preferred\n'}
+[0.628150] (defect_detection) StdoutLine: {'line': b'        ros2_image_msg.header.frame_id = "ros2_camera_frame"\n'}
+[0.628179] (defect_detection) StdoutLine: {'line': b'                                         ^\n'}
+[0.628227] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.628265] (defect_detection) StdoutLine: {'line': b'./defect_detection/spot_cam_loading/image_publisher.py:53:11: W292 no newline at end of file\n'}
+[0.628294] (defect_detection) StdoutLine: {'line': b'    main()          ^\n'}
+[0.628321] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.628357] (defect_detection) StdoutLine: {'line': b'./defect_detection/spot_cam_loading/image_subscriber.py:18:5: E301 expected 1 blank line, found 0\n'}
+[0.628404] (defect_detection) StdoutLine: {'line': b'    def listener_callback(self, msg):\n'}
+[0.628455] (defect_detection) StdoutLine: {'line': b'    ^\n'}
+[0.628484] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.628533] (defect_detection) StdoutLine: {'line': b'./defect_detection/spot_cam_loading/image_subscriber.py:21:13: F541 f-string is missing placeholders\n'}
+[0.628577] (defect_detection) StdoutLine: {'line': b"            f'Received image!'\n"}
+[0.628613] (defect_detection) StdoutLine: {'line': b'            ^\n'}
+[0.628657] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.628709] (defect_detection) StdoutLine: {'line': b'./defect_detection/spot_cam_loading/image_subscriber.py:23:5: E301 expected 1 blank line, found 0\n'}
+[0.628768] (defect_detection) StdoutLine: {'line': b'    def get_image_data(self):\n'}
+[0.628824] (defect_detection) StdoutLine: {'line': b'    ^\n'}
+[0.628869] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.628906] (defect_detection) StdoutLine: {'line': b'./defect_detection/spot_cam_loading/image_subscriber.py:25:1: W293 blank line contains whitespace\n'}
+[0.628935] (defect_detection) StdoutLine: {'line': b'    \n'}
+[0.628976] (defect_detection) StdoutLine: {'line': b'^\n'}
+[0.629024] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.629062] (defect_detection) StdoutLine: {'line': b'./defect_detection/spot_cam_loading/image_subscriber.py:26:1: E302 expected 2 blank lines, found 1\n'}
+[0.629092] (defect_detection) StdoutLine: {'line': b'def main(args=None):\n'}
+[0.629131] (defect_detection) StdoutLine: {'line': b'^\n'}
+[0.629170] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.629202] (defect_detection) StdoutLine: {'line': b'./defect_detection/spot_cam_loading/image_subscriber.py:38:6: E111 indentation is not a multiple of 4\n'}
+[0.629233] (defect_detection) StdoutLine: {'line': b'     main()\n'}
+[0.629261] (defect_detection) StdoutLine: {'line': b'     ^\n'}
+[0.629296] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.629372] (defect_detection) StdoutLine: {'line': b'./defect_detection/spot_cam_loading/image_subscriber.py:38:6: E117 over-indented\n'}
+[0.629419] (defect_detection) StdoutLine: {'line': b'     main()\n'}
+[0.629490] (defect_detection) StdoutLine: {'line': b'     ^\n'}
+[0.629549] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.629598] (defect_detection) StdoutLine: {'line': b'./defect_detection/spot_cam_loading/image_subscriber.py:39:1: W293 blank line contains whitespace\n'}
+[0.629626] (defect_detection) StdoutLine: {'line': b'    \n'}
+[0.629654] (defect_detection) StdoutLine: {'line': b'^\n'}
+[0.629683] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.629731] (defect_detection) StdoutLine: {'line': b'./defect_detection/spot_cam_loading/image_subscriber.py:40:1: W391 blank line at end of file\n'}
+[0.629760] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.629788] (defect_detection) StdoutLine: {'line': b'^\n'}
+[0.629817] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.629855] (defect_detection) StdoutLine: {'line': b'./setup.py:41:100: E501 line too long (103 > 99 characters)\n'}
+[0.629882] (defect_detection) StdoutLine: {'line': b"            'point_cloud_subscriber = defect_detection.pointcloud_loading.point_cloud_subscriber:main',\n"}
+[0.629906] (defect_detection) StdoutLine: {'line': b'                                                                                                   ^\n'}
+[0.629929] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.629954] (defect_detection) StdoutLine: {'line': b'1     E111 indentation is not a multiple of 4\n'}
+[0.629980] (defect_detection) StdoutLine: {'line': b'1     E117 over-indented\n'}
+[0.630009] (defect_detection) StdoutLine: {'line': b'3     E261 at least two spaces before inline comment\n'}
+[0.630036] (defect_detection) StdoutLine: {'line': b"3     E262 inline comment should start with '# '\n"}
+[0.630063] (defect_detection) StdoutLine: {'line': b"1     E265 block comment should start with '# '\n"}
+[0.630089] (defect_detection) StdoutLine: {'line': b'2     E301 expected 1 blank line, found 0\n'}
+[0.630115] (defect_detection) StdoutLine: {'line': b'2     E302 expected 2 blank lines, found 1\n'}
+[0.630141] (defect_detection) StdoutLine: {'line': b'5     E501 line too long (105 > 99 characters)\n'}
+[0.630166] (defect_detection) StdoutLine: {'line': b"1     F401 'defect_detection.defect_detection.defect_localization.extract_3d_detections.CustomDetection3D' imported but unused\n"}
+[0.630193] (defect_detection) StdoutLine: {'line': b'1     F541 f-string is missing placeholders\n'}
+[0.630238] (defect_detection) StdoutLine: {'line': b"8     I100 Import statements are in the wrong order. 'import message_filters' should be before 'from rclpy.qos import qos_profile_sensor_data'\n"}
+[0.630274] (defect_detection) StdoutLine: {'line': b'2     I101 Imported names are in the wrong order. Should be BoundingBox3D, Detection2DArray, Detection3D, Detection3DArray, ObjectHypothesisWithPose\n'}
+[0.630304] (defect_detection) StdoutLine: {'line': b'43    Q000 Double quotes found but single quotes preferred\n'}
+[0.630353] (defect_detection) StdoutLine: {'line': b'1     W291 trailing whitespace\n'}
+[0.630396] (defect_detection) StdoutLine: {'line': b'4     W292 no newline at end of file\n'}
+[0.630426] (defect_detection) StdoutLine: {'line': b'3     W293 blank line contains whitespace\n'}
+[0.630464] (defect_detection) StdoutLine: {'line': b'1     W391 blank line at end of file\n'}
+[0.630502] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.630530] (defect_detection) StdoutLine: {'line': b'10 files checked\n'}
+[0.630579] (defect_detection) StdoutLine: {'line': b'82 errors\n'}
+[0.630626] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.630690] (defect_detection) StdoutLine: {'line': b"'E'-type errors: 18\n"}
+[0.630740] (defect_detection) StdoutLine: {'line': b"'F'-type errors: 2\n"}
+[0.630779] (defect_detection) StdoutLine: {'line': b"'I'-type errors: 10\n"}
+[0.630808] (defect_detection) StdoutLine: {'line': b"'Q'-type errors: 43\n"}
+[0.630857] (defect_detection) StdoutLine: {'line': b"'W'-type errors: 9\n"}
+[0.630898] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.630934] (defect_detection) StdoutLine: {'line': b'Checked files:\n'}
+[0.630999] (defect_detection) StdoutLine: {'line': b'\n'}
+[0.631034] (defect_detection) StdoutLine: {'line': b'* ./setup.py\n'}
+[0.631062] (defect_detection) StdoutLine: {'line': b'* ./defect_detection/defect_detection/yolo_detector.py\n'}
+[0.631100] (defect_detection) StdoutLine: {'line': b'* ./defect_detection/defect_detection/fusion_node.py\n'}
+[0.631156] (defect_detection) StdoutLine: {'line': b'* ./defect_detection/pointcloud_loading/point_cloud_subscriber.py\n'}
+[0.631195] (defect_detection) StdoutLine: {'line': b'* ./defect_detection/defect_localization/extract_3d_detections.py\n'}
+[0.631226] (defect_detection) StdoutLine: {'line': b'* ./defect_detection/spot_cam_loading/image_publisher.py\n'}
+[0.631265] (defect_detection) StdoutLine: {'line': b'* ./defect_detection/spot_cam_loading/image_subscriber.py\n'}
+[0.631305] (defect_detection) StdoutLine: {'line': b'* ./test/test_copyright.py\n'}
+[0.631344] (defect_detection) StdoutLine: {'line': b'* ./test/test_pep257.py\n'}
+[0.631403] (defect_detection) StdoutLine: {'line': b'* ./test/test_flake8.py\n'}
+[0.631455] (defect_detection) StdoutLine: {'line': b'- generated xml file: /home/avaradar/ros2_ws/build/defect_detection/pytest.xml -\n'}
+[0.631499] (defect_detection) StdoutLine: {'line': b'=========================== short test summary info ============================\n'}
+[0.631550] (defect_detection) StdoutLine: {'line': b'FAILED test/test_flake8.py::test_flake8 - AssertionError: Found 82 code style...\n'}
+[0.631586] (defect_detection) StdoutLine: {'line': b'==================== 1 failed, 1 passed, 1 skipped in 0.22s ====================\n'}
+[0.668194] (defect_detection) CommandEnded: {'returncode': 1}
+[0.668684] (defect_detection) TestFailure: {'identifier': 'defect_detection'}
+[0.668731] (defect_detection) JobEnded: {'identifier': 'defect_detection', 'rc': 0}
+[0.669196] (-) EventReactorShutdown: {}

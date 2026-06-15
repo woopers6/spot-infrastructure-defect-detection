@@ -4,3 +4,6 @@ source;share/defect_detection/hook/pythonpath.sh
 source;share/defect_detection/hook/ament_prefix_path.ps1
 source;share/defect_detection/hook/ament_prefix_path.dsv
 source;share/defect_detection/hook/ament_prefix_path.sh
+source;../../build/defect_detection/share/defect_detection/hook/pythonpath_develop.ps1
+source;../../build/defect_detection/share/defect_detection/hook/pythonpath_develop.dsv
+source;../../build/defect_detection/share/defect_detection/hook/pythonpath_develop.sh

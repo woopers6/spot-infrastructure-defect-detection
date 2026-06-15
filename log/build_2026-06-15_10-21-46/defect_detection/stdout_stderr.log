@@ -1,0 +1,23 @@
+running develop
+running egg_info
+writing defect_detection.egg-info/PKG-INFO
+writing dependency_links to defect_detection.egg-info/dependency_links.txt
+writing entry points to defect_detection.egg-info/entry_points.txt
+writing requirements to defect_detection.egg-info/requires.txt
+writing top-level names to defect_detection.egg-info/top_level.txt
+reading manifest file 'defect_detection.egg-info/SOURCES.txt'
+writing manifest file 'defect_detection.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/avaradar/ros2_ws/install/defect_detection/lib/python3.12/site-packages/defect-detection.egg-link (link to .)
+Installing fusion_node script to /home/avaradar/ros2_ws/install/defect_detection/lib/defect_detection
+Installing image_publisher script to /home/avaradar/ros2_ws/install/defect_detection/lib/defect_detection
+Installing image_subscriber script to /home/avaradar/ros2_ws/install/defect_detection/lib/defect_detection
+Installing point_cloud_subscriber script to /home/avaradar/ros2_ws/install/defect_detection/lib/defect_detection
+Installing yolo_detector script to /home/avaradar/ros2_ws/install/defect_detection/lib/defect_detection
+
+Installed /home/avaradar/ros2_ws/build/defect_detection
+running symlink_data
+symbolically linking /home/avaradar/ros2_ws/build/defect_detection/resource/defect_detection -> /home/avaradar/ros2_ws/install/defect_detection/share/ament_index/resource_index/packages
+symbolically linking /home/avaradar/ros2_ws/build/defect_detection/package.xml -> /home/avaradar/ros2_ws/install/defect_detection/share/defect_detection
+creating /home/avaradar/ros2_ws/install/defect_detection/share/defect_detection/launch
+error: [Errno 2] No such file or directory: '/home/avaradar/ros2_ws/install/defect_detection/share/defect_detection/launch/defect_detection.launch.xml'

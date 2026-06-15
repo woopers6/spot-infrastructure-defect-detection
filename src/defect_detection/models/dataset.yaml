@@ -1,1 +1,2 @@
-#make sure to actually put the classes that you want in here
+# Replace this list with the class names used to train the deployed model.
+names: []
