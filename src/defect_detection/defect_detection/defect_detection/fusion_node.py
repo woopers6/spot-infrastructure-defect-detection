@@ -1,4 +1,3 @@
-from defect_detection.defect_detection.defect_localization.extract_3d_detections import CustomDetection3D
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
@@ -16,7 +15,9 @@ from vision_msgs.msg import (
     ObjectHypothesisWithPose,
 )
 
-from defect_localization import extract_detections_3d
+from defect_detection.defect_localization.extract_3d_detections import (
+    extract_detections_3d,
+)
 
 
 class DetectionFusionNode(Node):
