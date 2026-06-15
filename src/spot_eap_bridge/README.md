@@ -90,6 +90,19 @@ ros2 launch spot_eap_bridge full_pipeline.launch.xml \
   fusion:=true
 ```
 
+Open RViz with the full point cloud and `Detection3DArray` markers:
+
+```bash
+ros2 launch spot_eap_bridge full_pipeline.launch.xml \
+  detector:=true \
+  fusion:=true \
+  visualization:=true \
+  rviz:=true
+```
+
+The visualization node publishes the unchanged full cloud on
+`/rviz/pointcloud` and box/label markers on `/detection_markers`.
+
 `lidar_frame` only sets the outgoing message frame ID. It does not rotate or
 translate point coordinates. Leave it equal to the upstream frame unless the
 upstream points are already expressed in the configured frame.

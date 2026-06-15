@@ -20,6 +20,13 @@
   <arg name="max_future_offset_sec" default="0.05"/>
   <arg name="detector" default="false"/>
   <arg name="fusion" default="false"/>
+  <arg name="visualization" default="true"/>
+  <arg name="rviz" default="false"/>
+  <arg name="visualization_pointcloud_topic" default="/rviz/pointcloud"/>
+  <arg name="markers_topic" default="/detection_markers"/>
+  <arg name="box_alpha" default="0.30"/>
+  <arg name="label_height" default="0.15"/>
+  <arg name="marker_lifetime_sec" default="0.50"/>
   <arg name="sync_queue_size" default="30"/>
   <arg name="sync_slop_sec" default="0.10"/>
 
@@ -55,6 +62,14 @@
     <arg name="pointcloud_monitor" value="$(var pointcloud_monitor)"/>
     <arg name="detector" value="$(var detector)"/>
     <arg name="fusion" value="$(var fusion)"/>
+    <arg name="visualization" value="$(var visualization)"/>
+    <arg name="rviz" value="$(var rviz)"/>
+    <arg name="visualization_pointcloud_topic"
+         value="$(var visualization_pointcloud_topic)"/>
+    <arg name="markers_topic" value="$(var markers_topic)"/>
+    <arg name="box_alpha" value="$(var box_alpha)"/>
+    <arg name="label_height" value="$(var label_height)"/>
+    <arg name="marker_lifetime_sec" value="$(var marker_lifetime_sec)"/>
     <arg name="sync_queue_size" value="$(var sync_queue_size)"/>
     <arg name="sync_slop_sec" value="$(var sync_slop_sec)"/>
   </include>

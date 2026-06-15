@@ -42,6 +42,8 @@ setup(
             'defect_detection.pointcloud_loading.point_cloud_subscriber:main',
             'yolo_detector = defect_detection.defect_detection.yolo_detector:main',
             'fusion_node = defect_detection.defect_detection.fusion_node:main',
+            'visualization_node = '
+            'defect_detection.defect_detection.visualization_node:main',
         ],
     },
 )

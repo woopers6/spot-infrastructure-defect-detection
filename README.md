@@ -91,6 +91,28 @@ version. Then launch with:
 ros2 launch spot_eap_bridge full_pipeline.launch.xml detector:=true
 ```
 
+## RViz Visualization
+
+The visualization node republishes:
+
+- The complete cloud on `/rviz/pointcloud`
+- 3D bounding boxes and labels on `/detection_markers`
+
+Start the full pipeline and the configured RViz window with:
+
+```bash
+ros2 launch spot_eap_bridge full_pipeline.launch.xml \
+  detector:=true \
+  fusion:=true \
+  visualization:=true \
+  rviz:=true
+```
+
+The RViz configuration includes a `PointCloud2` display and a `MarkerArray`
+display. Its fixed frame defaults to `lidar`, matching the default bridge
+configuration. Change RViz's **Global Options > Fixed Frame** if the cloud uses
+a different `header.frame_id`.
+
 ## Fusion Status
 
 The fusion algorithm and synthetic tests are implemented, but live fusion
