@@ -1,6 +1,0 @@
-[console_scripts]
-fusion_node = defect_detection.defect_detection.fusion_node:main
-image_publisher = defect_detection.spot_cam_loading.image_publisher:main
-image_subscriber = defect_detection.spot_cam_loading.image_subscriber:main
-point_cloud_subscriber = defect_detection.pointcloud_loading.point_cloud_subscriber:main
-yolo_detector = defect_detection.defect_detection.yolo_detector:main
