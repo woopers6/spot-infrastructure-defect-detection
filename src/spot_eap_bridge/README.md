@@ -41,6 +41,10 @@ discovers a source containing `velodyne` in its name. Override these with
 `spot_pointcloud_service:=SERVICE_NAME` and
 `spot_pointcloud_source:=SOURCE_NAME` when needed.
 
+The SDK node remains alive when Spot is unavailable and retries connection
+every five seconds by default. Configure this with
+`spot_reconnect_interval_sec:=SECONDS`.
+
 Alternatively, an upstream component may publish
 `sensor_msgs/msg/PointCloud2` with:
 

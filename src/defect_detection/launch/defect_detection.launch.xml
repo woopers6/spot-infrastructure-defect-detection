@@ -8,14 +8,21 @@
        description="Frame ID attached to camera images."/>
   <arg name="camera_frame_rate" default="30.0"
        description="Requested camera publication rate."/>
+  <arg name="camera_reconnect_interval_sec" default="2.0"/>
   <arg name="image_monitor" default="false"
        description="Run the simple image subscriber for topic testing."/>
   <arg name="pointcloud_monitor" default="false"
        description="Run the simple point-cloud subscriber for topic testing."/>
   <arg name="detector" default="false"
        description="Run YOLO. Requires ultralytics and models/yolov11m.engine."/>
+  <arg name="dataset_path"
+       default="$(find-pkg-share defect_detection)/models/dataset.yaml"/>
+  <arg name="model_path"
+       default="$(find-pkg-share defect_detection)/models/yolov11m.engine"/>
   <arg name="fusion" default="false"
        description="Run 2D detection and point-cloud fusion."/>
+  <arg name="calibration_path"
+       default="$(find-pkg-share defect_detection)/config/site_calibration.yaml"/>
   <arg name="visualization" default="true"
        description="Republish the cloud and convert 3D detections to RViz markers."/>
   <arg name="rviz" default="false"
@@ -38,6 +45,8 @@
     <param name="camera_index" value="$(var camera_index)"/>
     <param name="frame_id" value="$(var camera_frame)"/>
     <param name="frame_rate" value="$(var camera_frame_rate)"/>
+    <param name="reconnect_interval_sec"
+           value="$(var camera_reconnect_interval_sec)"/>
   </node>
 
   <node if="$(var image_monitor)"
@@ -56,15 +65,18 @@
         pkg="defect_detection"
         exec="yolo_detector"
         name="yolo_node"
-        cwd="$(find-pkg-share defect_detection)/models"
-        output="screen"/>
+        output="screen">
+    <param name="dataset_path" value="$(var dataset_path)"/>
+    <param name="model_path" value="$(var model_path)"/>
+  </node>
 
   <node if="$(var fusion)"
         pkg="defect_detection"
         exec="fusion_node"
         name="detection_fusion_node"
-        cwd="$(find-pkg-share defect_detection)/models"
         output="screen">
+    <param name="dataset_path" value="$(var dataset_path)"/>
+    <param name="calibration_path" value="$(var calibration_path)"/>
     <param name="sync_queue_size" value="$(var sync_queue_size)"/>
     <param name="sync_slop_sec" value="$(var sync_slop_sec)"/>
   </node>

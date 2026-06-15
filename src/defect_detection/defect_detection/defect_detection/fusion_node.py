@@ -1,3 +1,6 @@
+from pathlib import Path
+
+from ament_index_python.packages import get_package_share_directory
 from defect_detection.defect_localization.extract_3d_detections import (
     extract_detections_3d,
 )
@@ -29,12 +32,69 @@ def timestamp_delta_seconds(first_stamp, second_stamp):
     return abs(first - second) / 1e9
 
 
+def load_calibration(calibration_path):
+    path = Path(calibration_path).expanduser()
+    if not path.is_file():
+        raise FileNotFoundError(f'Calibration file not found: {path}')
+
+    with path.open('r', encoding='utf-8') as file:
+        calibration = yaml.safe_load(file) or {}
+
+    if not calibration.get('calibrated', False):
+        raise ValueError(
+            f'Calibration file is not marked calibrated: {path}'
+        )
+
+    intrinsics = np.asarray(
+        calibration.get('camera_matrix'),
+        dtype=np.float64,
+    )
+    lidar_to_camera = np.asarray(
+        calibration.get('lidar_to_camera'),
+        dtype=np.float64,
+    )
+    image_width = int(calibration.get('image_width', 0))
+    image_height = int(calibration.get('image_height', 0))
+
+    if intrinsics.shape != (3, 3):
+        raise ValueError('camera_matrix must be a 3x3 matrix')
+    if lidar_to_camera.shape != (4, 4):
+        raise ValueError('lidar_to_camera must be a 4x4 matrix')
+    if image_width <= 0 or image_height <= 0:
+        raise ValueError('image_width and image_height must be positive')
+
+    return intrinsics, lidar_to_camera, (image_height, image_width)
+
+
 class DetectionFusionNode(Node):
 
     def __init__(self):
         super().__init__('detection_fusion_node')
 
-        with open('dataset.yaml', 'r') as file:
+        package_share = Path(get_package_share_directory('defect_detection'))
+        self.declare_parameter(
+            'dataset_path',
+            str(package_share / 'models' / 'dataset.yaml'),
+        )
+        self.declare_parameter(
+            'calibration_path',
+            str(package_share / 'config' / 'site_calibration.yaml'),
+        )
+        dataset_path = Path(
+            self.get_parameter(
+                'dataset_path'
+            ).get_parameter_value().string_value
+        ).expanduser()
+        calibration_path = self.get_parameter(
+            'calibration_path'
+        ).get_parameter_value().string_value
+
+        if not dataset_path.is_file():
+            raise FileNotFoundError(
+                f'Dataset configuration not found: {dataset_path}'
+            )
+
+        with dataset_path.open('r', encoding='utf-8') as file:
             data = yaml.safe_load(file)
 
         names = data['names']
@@ -61,18 +121,14 @@ class DetectionFusionNode(Node):
         if self.sync_slop_sec <= 0.0:
             raise ValueError('sync_slop_sec must be greater than zero')
 
-        # Placeholders until camera and LiDAR calibration is loaded.
-        self.intrinsics_matrix = np.array(
-            [
-                [1.0, 0.0, 1.0],
-                [0.0, 1.0, 1.0],
-                [0.0, 0.0, 1.0],
-            ],
-            dtype=np.float64,
+        (
+            self.intrinsics_matrix,
+            self.T_lidar_to_camera,
+            self.image_shape,
+        ) = load_calibration(calibration_path)
+        self.get_logger().info(
+            f'Loaded camera-LiDAR calibration from {calibration_path}'
         )
-        self.T_lidar_to_camera = np.eye(4, dtype=np.float64)
-
-        self.image_shape = (720, 1280)
 
         # Output publisher
         self.detections_3d_pub = self.create_publisher(
@@ -133,7 +189,7 @@ class DetectionFusionNode(Node):
             )
             return
 
-        self.get_logger().info(
+        self.get_logger().debug(
             'Received synchronized detection and point-cloud pair '
             f'(delta={timestamp_delta * 1000.0:.1f}ms)'
         )
@@ -165,7 +221,7 @@ class DetectionFusionNode(Node):
 
         self.detections_3d_pub.publish(output_msg)
 
-        self.get_logger().info(
+        self.get_logger().debug(
             f'Published {len(output_msg.detections)} detections '
             f'to /detections_3d'
         )

@@ -1,4 +1,5 @@
 import os
+import time
 
 from bosdyn.api import point_cloud_pb2
 import bosdyn.client
@@ -83,6 +84,21 @@ def robot_timestamp_to_ros_time(timestamp, clock_skew_nsec):
     )
 
 
+def retry_due(last_attempt_monotonic, retry_interval_sec, now_monotonic):
+    if last_attempt_monotonic is None:
+        return True
+    return now_monotonic - last_attempt_monotonic >= retry_interval_sec
+
+
+def authenticate_robot(robot, timeout_sec):
+    username = os.environ.get('BOSDYN_CLIENT_USERNAME')
+    password = os.environ.get('BOSDYN_CLIENT_PASSWORD')
+    if username and password:
+        robot.authenticate(username, password, timeout=timeout_sec)
+        return
+    bosdyn_util.authenticate(robot)
+
+
 class SpotSdkPointCloud(Node):
 
     def __init__(self):
@@ -96,15 +112,16 @@ class SpotSdkPointCloud(Node):
         self.declare_parameter('publish_rate', 10.0)
         self.declare_parameter('rpc_timeout_sec', 5.0)
         self.declare_parameter('downsample_rate', 1)
+        self.declare_parameter('reconnect_interval_sec', 5.0)
 
         hostname = self.get_parameter(
             'hostname'
         ).get_parameter_value().string_value
         hostname = hostname or os.environ.get('SPOT_IP', '')
-        service_name = self.get_parameter(
+        self.service_name = self.get_parameter(
             'service_name'
         ).get_parameter_value().string_value
-        requested_source = self.get_parameter(
+        self.requested_source = self.get_parameter(
             'source_name'
         ).get_parameter_value().string_value
         output_topic = self.get_parameter(
@@ -122,6 +139,9 @@ class SpotSdkPointCloud(Node):
         self.downsample_rate = self.get_parameter(
             'downsample_rate'
         ).get_parameter_value().integer_value
+        self.reconnect_interval = self.get_parameter(
+            'reconnect_interval_sec'
+        ).get_parameter_value().double_value
 
         if not hostname:
             raise ValueError(
@@ -133,22 +153,17 @@ class SpotSdkPointCloud(Node):
             raise ValueError('rpc_timeout_sec must be greater than zero')
         if self.downsample_rate <= 0:
             raise ValueError('downsample_rate must be greater than zero')
+        if self.reconnect_interval <= 0.0:
+            raise ValueError(
+                'reconnect_interval_sec must be greater than zero'
+            )
 
-        sdk = bosdyn.client.create_standard_sdk('spot-eap-ros2')
-        self.robot = sdk.create_robot(hostname)
-        bosdyn_util.authenticate(self.robot)
-        self.robot.sync_with_directory()
-        self.robot.time_sync.wait_for_sync(timeout_sec=10.0)
-
-        self.client = self.robot.ensure_client(service_name)
-        sources = self.client.list_point_cloud_sources(
-            timeout=self.rpc_timeout
-        )
-        self.source_name = select_point_cloud_source(
-            sources,
-            requested_name=requested_source,
-        )
-
+        self.hostname = hostname
+        self.sdk = bosdyn.client.create_standard_sdk('spot-eap-ros2')
+        self.robot = None
+        self.client = None
+        self.source_name = None
+        self.last_connection_attempt = None
         self.publisher = self.create_publisher(
             PointCloud2,
             output_topic,
@@ -161,12 +176,68 @@ class SpotSdkPointCloud(Node):
         )
 
         self.get_logger().info(
-            f'Reading Spot point-cloud source {self.source_name!r} '
-            f'from service {service_name!r} at {hostname} '
-            f'and publishing {output_topic}'
+            f'Spot point-cloud client targeting {hostname}; '
+            f'publishing {output_topic}'
         )
 
+    def connect(self):
+        self.last_connection_attempt = time.monotonic()
+        robot = self.sdk.create_robot(self.hostname)
+        self.robot = robot
+        authenticate_robot(robot, self.rpc_timeout)
+        robot.sync_with_directory(timeout=self.rpc_timeout)
+        robot.time_sync.wait_for_sync(timeout_sec=10.0)
+
+        client = robot.ensure_client(self.service_name)
+        sources = client.list_point_cloud_sources(
+            timeout=self.rpc_timeout
+        )
+        source_name = select_point_cloud_source(
+            sources,
+            requested_name=self.requested_source,
+        )
+
+        self.client = client
+        self.source_name = source_name
+        self.last_acquisition_time = None
+        self.get_logger().info(
+            f'Connected to Spot service {self.service_name!r}; '
+            f'using source {self.source_name!r}'
+        )
+
+    def disconnect(self):
+        if self.robot is not None:
+            self.robot.time_sync.stop()
+        self.robot = None
+        self.client = None
+        self.source_name = None
+
+    def ensure_connected(self):
+        if self.client is not None:
+            return True
+
+        now_monotonic = time.monotonic()
+        if not retry_due(
+            self.last_connection_attempt,
+            self.reconnect_interval,
+            now_monotonic,
+        ):
+            return False
+
+        try:
+            self.connect()
+        except Exception as error:
+            self.disconnect()
+            self.get_logger().warning(
+                f'Waiting for Spot point-cloud service: {error}'
+            )
+            return False
+        return True
+
     def publish_point_cloud(self):
+        if not self.ensure_connected():
+            return
+
         request = point_cloud_pb2.PointCloudRequest(
             point_cloud_source_name=self.source_name,
             cloud_type=point_cloud_pb2.PointCloudRequest.CLOUD_TYPE_POINTS,
@@ -201,9 +272,10 @@ class SpotSdkPointCloud(Node):
                 clock_skew.seconds * 1_000_000_000 + clock_skew.nanos,
             )
         except Exception as error:
-            self.get_logger().error(
-                f'Failed to read Spot point cloud: {error}'
+            self.get_logger().warning(
+                f'Lost Spot point-cloud connection: {error}'
             )
+            self.disconnect()
             return
 
         header = Header()
@@ -216,7 +288,7 @@ class SpotSdkPointCloud(Node):
         self.last_acquisition_time = acquisition_key
 
     def destroy_node(self):
-        self.robot.time_sync.stop()
+        self.disconnect()
         super().destroy_node()
 
 

@@ -5,6 +5,7 @@ import pytest
 
 from spot_eap_bridge.spot_sdk_pointcloud import (
     decode_xyz32,
+    retry_due,
     robot_timestamp_to_ros_time,
     select_point_cloud_source,
 )
@@ -61,3 +62,9 @@ def test_robot_timestamp_to_ros_time_removes_robot_clock_skew():
 
     assert stamp.sec == 98
     assert stamp.nanosec == 750_000_000
+
+
+def test_retry_due():
+    assert retry_due(None, 5.0, 10.0)
+    assert not retry_due(8.0, 5.0, 10.0)
+    assert retry_due(5.0, 5.0, 10.0)

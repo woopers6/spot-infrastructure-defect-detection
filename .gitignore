@@ -11,6 +11,9 @@ __pycache__/
 .coverage
 htmlcov/
 
+# Field credentials and machine-specific paths
+/config/field.env
+
 # Editors and operating systems
 .idea/
 .vscode/

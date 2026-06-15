@@ -1,5 +1,6 @@
 from defect_detection.defect_detection.fusion_node import DetectionFusionNode
 from defect_detection.defect_detection.fusion_node import (
+    load_calibration,
     timestamp_delta_seconds,
 )
 from defect_detection.defect_localization.extract_3d_detections import (
@@ -162,6 +163,44 @@ def test_timestamp_delta_rejects_missing_stamp():
             detection.header.stamp,
             cloud_header.stamp,
         )
+
+
+def test_load_calibration_rejects_uncalibrated_file(tmp_path):
+    calibration = tmp_path / 'calibration.yaml'
+    calibration.write_text(
+        'calibrated: false\n',
+        encoding='utf-8',
+    )
+
+    with pytest.raises(ValueError, match='not marked calibrated'):
+        load_calibration(calibration)
+
+
+def test_load_calibration(tmp_path):
+    calibration = tmp_path / 'calibration.yaml'
+    calibration.write_text(
+        '\n'.join([
+            'calibrated: true',
+            'image_width: 640',
+            'image_height: 480',
+            'camera_matrix:',
+            '  - [100.0, 0.0, 320.0]',
+            '  - [0.0, 100.0, 240.0]',
+            '  - [0.0, 0.0, 1.0]',
+            'lidar_to_camera:',
+            '  - [1.0, 0.0, 0.0, 0.0]',
+            '  - [0.0, 1.0, 0.0, 0.0]',
+            '  - [0.0, 0.0, 1.0, 0.0]',
+            '  - [0.0, 0.0, 0.0, 1.0]',
+        ]),
+        encoding='utf-8',
+    )
+
+    intrinsics, transform, image_shape = load_calibration(calibration)
+
+    assert intrinsics.shape == (3, 3)
+    assert transform.shape == (4, 4)
+    assert image_shape == (480, 640)
 
 
 def test_ros_approximate_synchronizer_respects_tolerance():

@@ -1,3 +1,6 @@
+from pathlib import Path
+
+from ament_index_python.packages import get_package_share_directory
 from cv_bridge import CvBridge
 import rclpy
 from rclpy.node import Node
@@ -16,7 +19,36 @@ import yaml
 class YoloNode(Node):
     def __init__(self):
         super().__init__('yolo_node')
-        with open('dataset.yaml', 'r') as file:
+
+        package_share = Path(get_package_share_directory('defect_detection'))
+        self.declare_parameter(
+            'dataset_path',
+            str(package_share / 'models' / 'dataset.yaml'),
+        )
+        self.declare_parameter(
+            'model_path',
+            str(package_share / 'models' / 'yolov11m.engine'),
+        )
+
+        dataset_path = Path(
+            self.get_parameter(
+                'dataset_path'
+            ).get_parameter_value().string_value
+        ).expanduser()
+        model_path = Path(
+            self.get_parameter(
+                'model_path'
+            ).get_parameter_value().string_value
+        ).expanduser()
+
+        if not dataset_path.is_file():
+            raise FileNotFoundError(
+                f'Dataset configuration not found: {dataset_path}'
+            )
+        if not model_path.is_file():
+            raise FileNotFoundError(f'YOLO model not found: {model_path}')
+
+        with dataset_path.open('r', encoding='utf-8') as file:
             data = yaml.safe_load(file)
         names = data['names']
 
@@ -27,7 +59,7 @@ class YoloNode(Node):
         else:
             self.classes = list(names)
 
-        self.model = YOLO('yolov11m.engine')
+        self.model = YOLO(str(model_path))
         self.bridge = CvBridge()
 
         self.image_sub = self.create_subscription(
