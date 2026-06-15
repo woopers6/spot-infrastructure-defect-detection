@@ -26,7 +26,7 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='avaradar',
-    maintainer_email='avaradar@todo.todo',
+    maintainer_email='arunvaradarajan3@gmail.com',
     description='TODO: Package description',
     license='TODO: License declaration',
     extras_require={

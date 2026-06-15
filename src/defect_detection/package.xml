@@ -4,7 +4,7 @@
   <name>defect_detection</name>
   <version>0.0.0</version>
   <description>ROS 2 nodes for camera, LiDAR, defect detection, and 3D detection fusion.</description>
-  <maintainer email="avaradar@todo.todo">avaradar</maintainer>
+  <maintainer email="arunvaradarajan3@gmail.com">avaradar</maintainer>
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>
