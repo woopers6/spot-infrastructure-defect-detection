@@ -12,7 +12,7 @@ class PointCloudSubscriber(Node):
 
         self.subscription = self.create_subscription(
             PointCloud2,
-            '/velodyne/points',
+            'spot/velodyne/points', #TODO: make sure that this is correct topic
             self.listener_callback,
             10
         )

@@ -25,7 +25,7 @@ class BBox3D:
 
 
 @dataclass
-class Detection3D:
+class CustomDetection3D:
 
     class_name: str
     class_id: Optional[int]
@@ -254,7 +254,7 @@ def extract_detection_3d(
     filter_outliers: bool = True,
     max_depth_deviation: float = 0.50,
     min_points: int = 3,
-) -> Optional[Detection3D]:
+) -> Optional[CustomDetection3D]:
     pc_lidar = pointcloud2_to_xyz_array(pointcloud_msg)
 
     if len(pc_lidar) == 0:
@@ -297,7 +297,7 @@ def extract_detection_3d(
     median_depth_camera = float(np.median(defect_points_camera[:, 2]))
     bbox_3d_lidar = compute_3d_bbox(defect_points_lidar)
 
-    return Detection3D(
+    return CustomDetection3D(
         class_name=class_name,
         class_id=class_id,
         confidence=confidence,
@@ -321,8 +321,8 @@ def extract_detections_3d(
     filter_outliers: bool = True,
     max_depth_deviation: float = 0.50,
     min_points: int = 3,
-) -> list[Detection3D]:
-    detections: list[Detection3D] = []
+) -> list[CustomDetection3D]:
+    detections: list[CustomDetection3D] = []
 
     for box in boxes:
         det = extract_detection_3d(

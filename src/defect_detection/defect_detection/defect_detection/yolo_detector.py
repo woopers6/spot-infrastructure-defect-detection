@@ -9,14 +9,22 @@ from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 from vision_msgs.msg import Detection2DArray, Detection2D, ObjectHypothesisWithPose
 from vision_msgs.msg import BoundingBox2D
+from rclpy.qos import qos_profile_sensor_data
 
 
 class YoloNode(Node):
     def __init__(self):
         super().__init__("yolo_node")
+        with open("dataset.yaml", "r") as file:
+            data = yaml.safe_load(file)
+        names = data["names"]
 
-        with open("dataset.yaml", "r") as f:
-            data = yaml.safe_load(f)
+        if isinstance(names, dict):
+            self.class_names = [
+                names[index] for index in sorted(names.keys())
+            ]
+        else:
+            self.class_names = list(names)
 
         self.classes = list(data["names"])
         self.colors = np.random.uniform(0, 255, size=(len(self.classes), 3))
@@ -34,7 +42,7 @@ class YoloNode(Node):
         self.detections_pub = self.create_publisher(
             Detection2DArray,
             "/detections_2d",
-            10
+            qos_profile_sensor_data
         )
 
     def image_callback(self, image_msg: Image):
