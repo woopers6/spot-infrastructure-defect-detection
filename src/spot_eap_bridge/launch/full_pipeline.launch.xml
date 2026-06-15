@@ -1,10 +1,19 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="eap_lidar_topic" default="/eap/lidar/points"/>
+  <arg name="use_spot_sdk" default="true"/>
+  <arg name="spot_ip" default="$(env SPOT_IP '')"/>
+  <arg name="spot_pointcloud_service" default="velodyne-point-cloud"/>
+  <arg name="spot_pointcloud_source" default=""/>
+  <arg name="spot_publish_rate" default="10.0"/>
+  <arg name="spot_downsample_rate" default="1"/>
   <arg name="lidar_frame" default="lidar"/>
   <arg name="camera_frame" default="camera_optical_frame"/>
   <arg name="camera_index" default="0"/>
   <arg name="camera_frame_rate" default="30.0"/>
+  <arg name="publish_camera" default="true"/>
+  <arg name="image_monitor" default="false"/>
+  <arg name="pointcloud_monitor" default="true"/>
   <arg name="publish_extrinsics" default="false"/>
   <arg name="timestamp_mode" default="source"/>
   <arg name="max_cloud_age_sec" default="0.5"/>
@@ -13,6 +22,19 @@
   <arg name="fusion" default="false"/>
   <arg name="sync_queue_size" default="30"/>
   <arg name="sync_slop_sec" default="0.10"/>
+
+  <node if="$(var use_spot_sdk)"
+        pkg="spot_eap_bridge"
+        exec="spot_sdk_pointcloud"
+        name="spot_sdk_pointcloud"
+        output="screen">
+    <param name="hostname" value="$(var spot_ip)"/>
+    <param name="service_name" value="$(var spot_pointcloud_service)"/>
+    <param name="source_name" value="$(var spot_pointcloud_source)"/>
+    <param name="output_topic" value="$(var eap_lidar_topic)"/>
+    <param name="publish_rate" value="$(var spot_publish_rate)"/>
+    <param name="downsample_rate" value="$(var spot_downsample_rate)"/>
+  </node>
 
   <include file="$(find-pkg-share spot_eap_bridge)/launch/spot_eap_bridge.launch.xml">
     <arg name="input_topic" value="$(var eap_lidar_topic)"/>
@@ -25,9 +47,12 @@
   </include>
 
   <include file="$(find-pkg-share defect_detection)/launch/defect_detection.launch.xml">
+    <arg name="publish_camera" value="$(var publish_camera)"/>
     <arg name="camera_index" value="$(var camera_index)"/>
     <arg name="camera_frame" value="$(var camera_frame)"/>
     <arg name="camera_frame_rate" value="$(var camera_frame_rate)"/>
+    <arg name="image_monitor" value="$(var image_monitor)"/>
+    <arg name="pointcloud_monitor" value="$(var pointcloud_monitor)"/>
     <arg name="detector" value="$(var detector)"/>
     <arg name="fusion" value="$(var fusion)"/>
     <arg name="sync_queue_size" value="$(var sync_queue_size)"/>

@@ -26,7 +26,11 @@ setup(
             glob('config/*'),
         ),
     ],
-    install_requires=['setuptools'],
+    install_requires=[
+        'bosdyn-client>=5.0',
+        'numpy',
+        'setuptools',
+    ],
     zip_safe=True,
     maintainer='avaradar',
     maintainer_email='arunvaradarajan3@gmail.com',
@@ -41,6 +45,8 @@ setup(
         'console_scripts': [
             'pointcloud_bridge = '
             'spot_eap_bridge.pointcloud_bridge:main',
+            'spot_sdk_pointcloud = '
+            'spot_eap_bridge.spot_sdk_pointcloud:main',
         ],
     },
 )

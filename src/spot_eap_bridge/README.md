@@ -1,17 +1,48 @@
 # Spot EAP Bridge
 
 This package gives the defect detection pipeline a stable ROS 2 point-cloud
-interface:
+interface. It can read the EAP LiDAR directly through Spot's Point Cloud API:
 
 ```text
-EAP/Core I/O publisher or vendor driver
+Spot Point Cloud API
+  -> spot_sdk_pointcloud
   -> /eap/lidar/points
   -> spot_eap_bridge
   -> /spot/velodyne/points
   -> defect_detection fusion_node
 ```
 
-The upstream component must publish `sensor_msgs/msg/PointCloud2` with:
+Install the official Spot SDK in the same Python environment as ROS:
+
+```bash
+python3 -m pip install --user bosdyn-client bosdyn-api bosdyn-core
+```
+
+Set credentials without placing the password in a launch file:
+
+```bash
+export SPOT_IP=192.168.80.3
+export BOSDYN_CLIENT_USERNAME=YOUR_USERNAME
+export BOSDYN_CLIENT_PASSWORD=YOUR_PASSWORD
+```
+
+Then run a transport-only hardware test:
+
+```bash
+ros2 launch spot_eap_bridge full_pipeline.launch.xml \
+  image_monitor:=true \
+  pointcloud_monitor:=true \
+  detector:=false \
+  fusion:=false
+```
+
+The SDK node connects to Spot's `velodyne-point-cloud` directory service and
+discovers a source containing `velodyne` in its name. Override these with
+`spot_pointcloud_service:=SERVICE_NAME` and
+`spot_pointcloud_source:=SOURCE_NAME` when needed.
+
+Alternatively, an upstream component may publish
+`sensor_msgs/msg/PointCloud2` with:
 
 - `x`, `y`, and `z` fields
 - a valid acquisition timestamp
@@ -52,6 +83,7 @@ Run the bridge and defect pipeline together:
 
 ```bash
 ros2 launch spot_eap_bridge full_pipeline.launch.xml \
+  use_spot_sdk:=false \
   eap_lidar_topic:=/actual/eap/topic \
   lidar_frame:=actual_lidar_frame \
   detector:=true \
