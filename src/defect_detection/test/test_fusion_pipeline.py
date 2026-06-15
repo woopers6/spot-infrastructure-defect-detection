@@ -1,9 +1,19 @@
+import message_filters
 import numpy as np
+import pytest
+from sensor_msgs.msg import PointCloud2
 from sensor_msgs_py import point_cloud2
 from std_msgs.msg import Header
-from vision_msgs.msg import Detection2D, ObjectHypothesisWithPose
+from vision_msgs.msg import (
+    Detection2D,
+    Detection2DArray,
+    ObjectHypothesisWithPose,
+)
 
 from defect_detection.defect_detection.fusion_node import DetectionFusionNode
+from defect_detection.defect_detection.fusion_node import (
+    timestamp_delta_seconds,
+)
 from defect_detection.defect_localization.extract_3d_detections import (
     extract_detections_3d,
 )
@@ -126,3 +136,69 @@ def test_synthetic_2d_lidar_fusion_pipeline():
         output.bbox.size.y,
         output.bbox.size.z,
     ], detection.bbox_3d_lidar.size)
+
+
+def test_timestamp_delta_uses_acquisition_stamps():
+    detection = make_detection()
+    cloud_header = Header()
+
+    detection.header.stamp.sec = 100
+    detection.header.stamp.nanosec = 20_000_000
+    cloud_header.stamp.sec = 100
+    cloud_header.stamp.nanosec = 75_000_000
+
+    assert timestamp_delta_seconds(
+        detection.header.stamp,
+        cloud_header.stamp,
+    ) == pytest.approx(0.055)
+
+
+def test_timestamp_delta_rejects_missing_stamp():
+    detection = make_detection()
+    cloud_header = Header()
+    cloud_header.stamp.sec = 1
+
+    with pytest.raises(ValueError, match='non-zero'):
+        timestamp_delta_seconds(
+            detection.header.stamp,
+            cloud_header.stamp,
+        )
+
+
+def test_ros_approximate_synchronizer_respects_tolerance():
+    detections_filter = message_filters.SimpleFilter()
+    cloud_filter = message_filters.SimpleFilter()
+    synchronizer = message_filters.ApproximateTimeSynchronizer(
+        [detections_filter, cloud_filter],
+        queue_size=10,
+        slop=0.10,
+    )
+    matched_pairs = []
+    synchronizer.registerCallback(
+        lambda detections, cloud: matched_pairs.append(
+            (detections, cloud)
+        )
+    )
+
+    detections = Detection2DArray()
+    detections.header.stamp.sec = 20
+    detections.header.stamp.nanosec = 20_000_000
+    matching_cloud = PointCloud2()
+    matching_cloud.header.stamp.sec = 20
+    matching_cloud.header.stamp.nanosec = 75_000_000
+
+    detections_filter.signalMessage(detections)
+    cloud_filter.signalMessage(matching_cloud)
+
+    assert len(matched_pairs) == 1
+
+    late_detections = Detection2DArray()
+    late_detections.header.stamp.sec = 21
+    late_cloud = PointCloud2()
+    late_cloud.header.stamp.sec = 21
+    late_cloud.header.stamp.nanosec = 150_000_000
+
+    detections_filter.signalMessage(late_detections)
+    cloud_filter.signalMessage(late_cloud)
+
+    assert len(matched_pairs) == 1

@@ -20,6 +20,18 @@ from defect_detection.defect_localization.extract_3d_detections import (
 )
 
 
+def stamp_to_nanoseconds(stamp):
+    return stamp.sec * 1_000_000_000 + stamp.nanosec
+
+
+def timestamp_delta_seconds(first_stamp, second_stamp):
+    first = stamp_to_nanoseconds(first_stamp)
+    second = stamp_to_nanoseconds(second_stamp)
+    if first == 0 or second == 0:
+        raise ValueError('Synchronized messages must have non-zero timestamps')
+    return abs(first - second) / 1e9
+
+
 class DetectionFusionNode(Node):
 
     def __init__(self):
@@ -36,6 +48,21 @@ class DetectionFusionNode(Node):
             ]
         else:
             self.class_names = list(names)
+
+        self.declare_parameter('sync_queue_size', 30)
+        self.declare_parameter('sync_slop_sec', 0.10)
+
+        sync_queue_size = self.get_parameter(
+            'sync_queue_size'
+        ).get_parameter_value().integer_value
+        self.sync_slop_sec = self.get_parameter(
+            'sync_slop_sec'
+        ).get_parameter_value().double_value
+
+        if sync_queue_size <= 0:
+            raise ValueError('sync_queue_size must be greater than zero')
+        if self.sync_slop_sec <= 0.0:
+            raise ValueError('sync_slop_sec must be greater than zero')
 
         self.intrinsics_matrix = np.array([ #TODO: replace with actual intrinsics
             [1.0, 0.0, 1.0],
@@ -73,8 +100,8 @@ class DetectionFusionNode(Node):
                 self.detections_sub,
                 self.pointcloud_sub,
             ],
-            queue_size=30,
-            slop=0.10,
+            queue_size=sync_queue_size,
+            slop=self.sync_slop_sec,
         )
 
         self.synchronizer.registerCallback(
@@ -90,8 +117,25 @@ class DetectionFusionNode(Node):
         detections_2d_msg: Detection2DArray,
         pointcloud_msg: PointCloud2,
     ):
+        try:
+            timestamp_delta = timestamp_delta_seconds(
+                detections_2d_msg.header.stamp,
+                pointcloud_msg.header.stamp,
+            )
+        except ValueError as error:
+            self.get_logger().warning(f'Dropping synchronized pair: {error}')
+            return
+
+        if timestamp_delta > self.sync_slop_sec:
+            self.get_logger().warning(
+                'Dropping synchronized pair with timestamp delta '
+                f'{timestamp_delta:.3f}s'
+            )
+            return
+
         self.get_logger().info(
-            "Received synchronized detection and point-cloud pair"
+            'Received synchronized detection and point-cloud pair '
+            f'(delta={timestamp_delta * 1000.0:.1f}ms)'
         )
 
         detections_3d = extract_detections_3d(

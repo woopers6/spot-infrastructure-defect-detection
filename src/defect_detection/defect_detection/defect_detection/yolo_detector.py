@@ -36,7 +36,7 @@ class YoloNode(Node):
             Image,
             "/ros2_image",
             self.image_callback,
-            10
+            qos_profile_sensor_data
         )
 
         self.detections_pub = self.create_publisher(
@@ -55,7 +55,7 @@ class YoloNode(Node):
 
         detections_msg = Detection2DArray()
 
-        #IMPORTANT IMPORTANT IMPORTANT preserve original image capture timestamp, time syncing won't work otherwise
+        # Preserve acquisition time through inference for LiDAR synchronization.
         detections_msg.header = image_msg.header
 
         if len(results) > 0:

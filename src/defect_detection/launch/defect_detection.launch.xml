@@ -2,6 +2,12 @@
 <launch>
   <arg name="publish_camera" default="true"
        description="Publish frames from the local camera."/>
+  <arg name="camera_index" default="0"
+       description="OpenCV/V4L2 camera device index."/>
+  <arg name="camera_frame" default="camera_optical_frame"
+       description="Frame ID attached to camera images."/>
+  <arg name="camera_frame_rate" default="30.0"
+       description="Requested camera publication rate."/>
   <arg name="image_monitor" default="false"
        description="Run the simple image subscriber for topic testing."/>
   <arg name="pointcloud_monitor" default="false"
@@ -10,12 +16,20 @@
        description="Run YOLO. Requires ultralytics and models/yolov11m.engine."/>
   <arg name="fusion" default="false"
        description="Run 2D detection and point-cloud fusion."/>
+  <arg name="sync_queue_size" default="30"
+       description="Number of detection and cloud messages retained for matching."/>
+  <arg name="sync_slop_sec" default="0.10"
+       description="Maximum camera/LiDAR acquisition-time difference."/>
 
   <node if="$(var publish_camera)"
         pkg="defect_detection"
         exec="image_publisher"
         name="image_publisher"
-        output="screen"/>
+        output="screen">
+    <param name="camera_index" value="$(var camera_index)"/>
+    <param name="frame_id" value="$(var camera_frame)"/>
+    <param name="frame_rate" value="$(var camera_frame_rate)"/>
+  </node>
 
   <node if="$(var image_monitor)"
         pkg="defect_detection"
@@ -41,5 +55,8 @@
         exec="fusion_node"
         name="detection_fusion_node"
         cwd="$(find-pkg-share defect_detection)/models"
-        output="screen"/>
+        output="screen">
+    <param name="sync_queue_size" value="$(var sync_queue_size)"/>
+    <param name="sync_slop_sec" value="$(var sync_slop_sec)"/>
+  </node>
 </launch>

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="eap_lidar_topic" default="/eap/lidar/points"/>
+  <arg name="lidar_frame" default="lidar"/>
+  <arg name="camera_frame" default="camera_optical_frame"/>
+  <arg name="camera_index" default="0"/>
+  <arg name="camera_frame_rate" default="30.0"/>
+  <arg name="publish_extrinsics" default="false"/>
+  <arg name="timestamp_mode" default="source"/>
+  <arg name="max_cloud_age_sec" default="0.5"/>
+  <arg name="max_future_offset_sec" default="0.05"/>
+  <arg name="detector" default="false"/>
+  <arg name="fusion" default="false"/>
+  <arg name="sync_queue_size" default="30"/>
+  <arg name="sync_slop_sec" default="0.10"/>
+
+  <include file="$(find-pkg-share spot_eap_bridge)/launch/spot_eap_bridge.launch.xml">
+    <arg name="input_topic" value="$(var eap_lidar_topic)"/>
+    <arg name="lidar_frame" value="$(var lidar_frame)"/>
+    <arg name="camera_frame" value="$(var camera_frame)"/>
+    <arg name="publish_extrinsics" value="$(var publish_extrinsics)"/>
+    <arg name="timestamp_mode" value="$(var timestamp_mode)"/>
+    <arg name="max_cloud_age_sec" value="$(var max_cloud_age_sec)"/>
+    <arg name="max_future_offset_sec" value="$(var max_future_offset_sec)"/>
+  </include>
+
+  <include file="$(find-pkg-share defect_detection)/launch/defect_detection.launch.xml">
+    <arg name="camera_index" value="$(var camera_index)"/>
+    <arg name="camera_frame" value="$(var camera_frame)"/>
+    <arg name="camera_frame_rate" value="$(var camera_frame_rate)"/>
+    <arg name="detector" value="$(var detector)"/>
+    <arg name="fusion" value="$(var fusion)"/>
+    <arg name="sync_queue_size" value="$(var sync_queue_size)"/>
+    <arg name="sync_slop_sec" value="$(var sync_slop_sec)"/>
+  </include>
+</launch>
