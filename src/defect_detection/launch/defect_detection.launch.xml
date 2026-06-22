@@ -19,6 +19,10 @@
        default="$(find-pkg-share defect_detection)/models/dataset.yaml"/>
   <arg name="model_path"
        default="$(find-pkg-share defect_detection)/models/yolov11m.engine"/>
+  <arg name="image_topic" default="/ros2_image"/>
+  <arg name="detections_2d_topic" default="/detections_2d"/>
+  <arg name="pointcloud_topic" default="/spot/velodyne/points"/>
+  <arg name="detections_3d_topic" default="/detections_3d"/>
   <arg name="fusion" default="false"
        description="Run 2D detection and point-cloud fusion."/>
   <arg name="calibration_path"
@@ -78,6 +82,8 @@
         output="screen">
     <param name="dataset_path" value="$(var dataset_path)"/>
     <param name="model_path" value="$(var model_path)"/>
+    <param name="image_topic" value="$(var image_topic)"/>
+    <param name="detections_topic" value="$(var detections_2d_topic)"/>
   </node>
 
   <node if="$(var fusion)"
@@ -87,6 +93,9 @@
         output="screen">
     <param name="dataset_path" value="$(var dataset_path)"/>
     <param name="calibration_path" value="$(var calibration_path)"/>
+    <param name="detections_2d_topic" value="$(var detections_2d_topic)"/>
+    <param name="pointcloud_topic" value="$(var pointcloud_topic)"/>
+    <param name="detections_3d_topic" value="$(var detections_3d_topic)"/>
     <param name="sync_queue_size" value="$(var sync_queue_size)"/>
     <param name="sync_slop_sec" value="$(var sync_slop_sec)"/>
   </node>
@@ -98,6 +107,8 @@
         output="screen">
     <param name="visualization_pointcloud_topic"
            value="$(var visualization_pointcloud_topic)"/>
+    <param name="pointcloud_topic" value="$(var pointcloud_topic)"/>
+    <param name="detections_topic" value="$(var detections_3d_topic)"/>
     <param name="markers_topic" value="$(var markers_topic)"/>
     <param name="box_alpha" value="$(var box_alpha)"/>
     <param name="label_height" value="$(var label_height)"/>

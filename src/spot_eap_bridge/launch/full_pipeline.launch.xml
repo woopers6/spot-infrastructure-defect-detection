@@ -26,6 +26,10 @@
        default="$(find-pkg-share defect_detection)/models/dataset.yaml"/>
   <arg name="model_path"
        default="$(find-pkg-share defect_detection)/models/yolov11m.engine"/>
+  <arg name="image_topic" default="/ros2_image"/>
+  <arg name="detections_2d_topic" default="/detections_2d"/>
+  <arg name="pointcloud_topic" default="/spot/velodyne/points"/>
+  <arg name="detections_3d_topic" default="/detections_3d"/>
   <arg name="fusion" default="false"/>
   <arg name="calibration_path"
        default="$(find-pkg-share defect_detection)/config/site_calibration.yaml"/>
@@ -65,6 +69,7 @@
 
   <include file="$(find-pkg-share spot_eap_bridge)/launch/spot_eap_bridge.launch.xml">
     <arg name="input_topic" value="$(var eap_lidar_topic)"/>
+    <arg name="output_topic" value="$(var pointcloud_topic)"/>
     <arg name="lidar_frame" value="$(var lidar_frame)"/>
     <arg name="camera_frame" value="$(var camera_frame)"/>
     <arg name="publish_extrinsics" value="$(var publish_extrinsics)"/>
@@ -85,6 +90,10 @@
     <arg name="detector" value="$(var detector)"/>
     <arg name="dataset_path" value="$(var dataset_path)"/>
     <arg name="model_path" value="$(var model_path)"/>
+    <arg name="image_topic" value="$(var image_topic)"/>
+    <arg name="detections_2d_topic" value="$(var detections_2d_topic)"/>
+    <arg name="pointcloud_topic" value="$(var pointcloud_topic)"/>
+    <arg name="detections_3d_topic" value="$(var detections_3d_topic)"/>
     <arg name="fusion" value="$(var fusion)"/>
     <arg name="calibration_path" value="$(var calibration_path)"/>
     <arg name="visualization" value="$(var visualization)"/>

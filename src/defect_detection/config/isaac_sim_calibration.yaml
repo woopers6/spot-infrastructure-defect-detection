@@ -1,0 +1,15 @@
+# Matches scripts/isaac/full_3d_fusion_stage.py defaults. Isaac publishes the
+# point cloud from the same camera render product, so the fusion transform is
+# identity even though the ROS bridge later normalizes the frame id for RViz.
+calibrated: true
+image_width: 1280
+image_height: 720
+camera_matrix:
+  - [831.3844, 0.0, 640.0]
+  - [0.0, 831.3844, 360.0]
+  - [0.0, 0.0, 1.0]
+lidar_to_camera:
+  - [1.0, 0.0, 0.0, 0.0]
+  - [0.0, 1.0, 0.0, 0.0]
+  - [0.0, 0.0, 1.0, 0.0]
+  - [0.0, 0.0, 0.0, 1.0]

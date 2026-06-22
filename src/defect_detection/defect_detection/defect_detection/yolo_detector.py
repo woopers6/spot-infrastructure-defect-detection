@@ -29,6 +29,8 @@ class YoloNode(Node):
             'model_path',
             str(package_share / 'models' / 'yolov11m.engine'),
         )
+        self.declare_parameter('image_topic', '/ros2_image')
+        self.declare_parameter('detections_topic', '/detections_2d')
 
         dataset_path = Path(
             self.get_parameter(
@@ -40,6 +42,12 @@ class YoloNode(Node):
                 'model_path'
             ).get_parameter_value().string_value
         ).expanduser()
+        image_topic = self.get_parameter(
+            'image_topic'
+        ).get_parameter_value().string_value
+        detections_topic = self.get_parameter(
+            'detections_topic'
+        ).get_parameter_value().string_value
 
         if not dataset_path.is_file():
             raise FileNotFoundError(
@@ -64,14 +72,14 @@ class YoloNode(Node):
 
         self.image_sub = self.create_subscription(
             Image,
-            '/ros2_image',
+            image_topic,
             self.image_callback,
             qos_profile_sensor_data,
         )
 
         self.detections_pub = self.create_publisher(
             Detection2DArray,
-            '/detections_2d',
+            detections_topic,
             qos_profile_sensor_data,
         )
 

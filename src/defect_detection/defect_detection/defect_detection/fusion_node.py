@@ -80,6 +80,9 @@ class DetectionFusionNode(Node):
             'calibration_path',
             str(package_share / 'config' / 'site_calibration.yaml'),
         )
+        self.declare_parameter('detections_2d_topic', '/detections_2d')
+        self.declare_parameter('pointcloud_topic', '/spot/velodyne/points')
+        self.declare_parameter('detections_3d_topic', '/detections_3d')
         dataset_path = Path(
             self.get_parameter(
                 'dataset_path'
@@ -87,6 +90,15 @@ class DetectionFusionNode(Node):
         ).expanduser()
         calibration_path = self.get_parameter(
             'calibration_path'
+        ).get_parameter_value().string_value
+        detections_2d_topic = self.get_parameter(
+            'detections_2d_topic'
+        ).get_parameter_value().string_value
+        pointcloud_topic = self.get_parameter(
+            'pointcloud_topic'
+        ).get_parameter_value().string_value
+        detections_3d_topic = self.get_parameter(
+            'detections_3d_topic'
         ).get_parameter_value().string_value
 
         if not dataset_path.is_file():
@@ -133,21 +145,21 @@ class DetectionFusionNode(Node):
         # Output publisher
         self.detections_3d_pub = self.create_publisher(
             Detection3DArray,
-            '/detections_3d',
+            detections_3d_topic,
             10,
         )
 
         self.detections_sub = message_filters.Subscriber(
             self,
             Detection2DArray,
-            '/detections_2d',
+            detections_2d_topic,
             qos_profile=qos_profile_sensor_data,
         )
 
         self.pointcloud_sub = message_filters.Subscriber(
             self,
             PointCloud2,
-            '/spot/velodyne/points',
+            pointcloud_topic,
             qos_profile=qos_profile_sensor_data,
         )
 
@@ -165,7 +177,7 @@ class DetectionFusionNode(Node):
         )
 
         self.get_logger().info(
-            'Fusion node started. Publishing on /detections_3d'
+            f'Fusion node started. Publishing on {detections_3d_topic}'
         )
 
     def synchronized_callback(
