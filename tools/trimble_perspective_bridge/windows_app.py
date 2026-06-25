@@ -621,7 +621,7 @@ class TrimblePerspectiveBridgeApp:
 
             stride = max(1, int(point_count / max_points))
             reduced = laspy.LasData(las.header)
-            reduced.points = las.points[::stride]
+            reduced.points = las.points[::stride].copy()
             reduced.write(reduced_path)
             self.log(
                 f'Reduced {scan.name}: {point_count} -> '
