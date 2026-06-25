@@ -44,8 +44,9 @@ if [[ "${MODE}" == "full" ]]; then
   fusion=true
 fi
 
-exec ros2 launch spot_eap_bridge full_pipeline.launch.xml \
-  spot_ip:="${SPOT_IP}" \
+exec ros2 launch pointcloud_bridge full_pipeline.launch.xml \
+  lidar_input_topic:="${LIDAR_INPUT_TOPIC:-/lidar/raw}" \
+  pointcloud_topic:="${POINTCLOUD_TOPIC:-/lidar/points}" \
   camera_index:="${CAMERA_INDEX:-0}" \
   camera_frame:="${CAMERA_FRAME:-camera_optical_frame}" \
   lidar_frame:="${LIDAR_FRAME:-lidar}" \
@@ -59,5 +60,19 @@ exec ros2 launch spot_eap_bridge full_pipeline.launch.xml \
   autonomous_navigation:="${AUTONOMOUS_NAVIGATION:-false}" \
   autonomous_navigation_enabled:="${AUTONOMOUS_NAVIGATION_ENABLED:-false}" \
   navigation_priority_config:="${NAVIGATION_PRIORITY_CONFIG:-}" \
+  trimble_scan_watcher:="${TRIMBLE_SCAN_WATCHER:-true}" \
+  trimble_scan_directory:="${TRIMBLE_SCAN_DIRECTORY:-/tmp/trimble_scans}" \
+  trimble_scan_topic:="${TRIMBLE_SCAN_TOPIC:-/trimble/x7/scan_points}" \
+  trimble_scan_frame:="${TRIMBLE_SCAN_FRAME:-map}" \
+  trimble_windows_bridge:="${TRIMBLE_WINDOWS_BRIDGE:-false}" \
+  trimble_windows_url:="${TRIMBLE_WINDOWS_URL:-http://127.0.0.1:8765}" \
+  trimble_reference_scan_on_start:="${TRIMBLE_REFERENCE_SCAN_ON_START:-true}" \
+  scan_decision:="${SCAN_DECISION:-true}" \
+  scan_confidence_threshold:="${SCAN_CONFIDENCE_THRESHOLD:-0.65}" \
+  scan_min_detections:="${SCAN_MIN_DETECTIONS:-1}" \
+  scan_cooldown_sec:="${SCAN_COOLDOWN_SEC:-60.0}" \
+  digital_twin_map:="${DIGITAL_TWIN_MAP:-true}" \
+  frontier_planner:="${FRONTIER_PLANNER:-true}" \
+  defect_map:="${DEFECT_MAP:-true}" \
   pointcloud_monitor:=false \
   image_monitor:=false

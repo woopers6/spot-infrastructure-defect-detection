@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="input_topic" default="/eap/lidar/points"/>
-  <arg name="output_topic" default="/spot/velodyne/points"/>
+  <arg name="input_topic" default="/lidar/raw"/>
+  <arg name="output_topic" default="/lidar/points"/>
   <arg name="lidar_frame" default="lidar"/>
   <arg name="camera_frame" default="camera_optical_frame"/>
   <arg name="max_cloud_age_sec" default="0.5"/>
@@ -16,9 +16,9 @@
   <arg name="pitch" default="0.0"/>
   <arg name="yaw" default="0.0"/>
 
-  <node pkg="spot_eap_bridge"
+  <node pkg="pointcloud_bridge"
         exec="pointcloud_bridge"
-        name="spot_eap_pointcloud_bridge"
+        name="pointcloud_bridge"
         output="screen">
     <param name="input_topic" value="$(var input_topic)"/>
     <param name="output_topic" value="$(var output_topic)"/>

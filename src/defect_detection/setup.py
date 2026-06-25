@@ -46,6 +46,18 @@ setup(
             'defect_detection.defect_detection.visualization_node:main',
             'autonomous_navigator = '
             'defect_detection.autonomous_navigation.navigator:main',
+            'trimble_scan_watcher = '
+            'defect_detection.digital_twin.trimble_scan_watcher:main',
+            'pointcloud_to_occupancy = '
+            'defect_detection.digital_twin.pointcloud_to_occupancy:main',
+            'frontier_planner = '
+            'defect_detection.digital_twin.frontier_planner:main',
+            'defect_map_node = '
+            'defect_detection.digital_twin.defect_map_node:main',
+            'scan_decision_node = '
+            'defect_detection.digital_twin.scan_decision_node:main',
+            'trimble_windows_bridge = '
+            'defect_detection.digital_twin.trimble_windows_bridge:main',
         ],
     },
 )

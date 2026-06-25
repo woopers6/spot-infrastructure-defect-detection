@@ -81,7 +81,7 @@ class DetectionFusionNode(Node):
             str(package_share / 'config' / 'site_calibration.yaml'),
         )
         self.declare_parameter('detections_2d_topic', '/detections_2d')
-        self.declare_parameter('pointcloud_topic', '/spot/velodyne/points')
+        self.declare_parameter('pointcloud_topic', '/lidar/points')
         self.declare_parameter('detections_3d_topic', '/detections_3d')
         dataset_path = Path(
             self.get_parameter(

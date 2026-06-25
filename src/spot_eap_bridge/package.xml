@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>spot_eap_bridge</name>
+  <name>pointcloud_bridge</name>
   <version>0.1.0</version>
-  <description>Normalizes a network ROS point cloud for the Spot EAP defect detection pipeline.</description>
+  <description>Normalizes incoming ROS point clouds for the defect detection pipeline.</description>
   <maintainer email="arunvaradarajan3@gmail.com">avaradar</maintainer>
   <license>Apache-2.0</license>
 

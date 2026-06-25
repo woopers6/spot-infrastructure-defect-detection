@@ -18,9 +18,9 @@ references it under `/World/GeneratedCulvert`, creates a camera render product,
 and publishes:
 
 - `/ros2_image`
-- `/eap/lidar/points`
+- `/lidar/raw`
 
-The ROS launch bridges `/eap/lidar/points` to `/spot/velodyne/points`, runs
+The ROS launch bridges `/lidar/raw` to `/lidar/points`, runs
 YOLO, fuses `/detections_2d` with the point cloud, and publishes
 `/detections_3d` plus RViz markers.
 

@@ -21,7 +21,7 @@
        default="$(find-pkg-share defect_detection)/models/yolov11m.engine"/>
   <arg name="image_topic" default="/ros2_image"/>
   <arg name="detections_2d_topic" default="/detections_2d"/>
-  <arg name="pointcloud_topic" default="/spot/velodyne/points"/>
+  <arg name="pointcloud_topic" default="/lidar/points"/>
   <arg name="detections_3d_topic" default="/detections_3d"/>
   <arg name="fusion" default="false"
        description="Run 2D detection and point-cloud fusion."/>
@@ -50,6 +50,43 @@
        description="Number of detection and cloud messages retained for matching."/>
   <arg name="sync_slop_sec" default="0.10"
        description="Maximum camera/LiDAR acquisition-time difference."/>
+  <arg name="trimble_scan_watcher" default="false"
+       description="Watch a folder for completed Trimble X7 LAS/LAZ scans."/>
+  <arg name="trimble_scan_directory" default="/tmp/trimble_scans"/>
+  <arg name="trimble_scan_topic" default="/trimble/x7/scan_points"/>
+  <arg name="trimble_scan_frame" default="map"/>
+  <arg name="trimble_scan_max_points" default="500000"/>
+  <arg name="trimble_require_scan_request" default="true"/>
+  <arg name="scan_decision" default="false"
+       description="Request X7 scans only for high-confidence detections."/>
+  <arg name="scan_required_topic" default="/digital_twin/scan_required"/>
+  <arg name="scan_reason_topic" default="/digital_twin/scan_reason"/>
+  <arg name="scan_confidence_threshold" default="0.65"/>
+  <arg name="scan_min_detections" default="1"/>
+  <arg name="scan_cooldown_sec" default="60.0"/>
+  <arg name="digital_twin_map" default="false"
+       description="Convert Trimble scan points into a 2D occupancy map."/>
+  <arg name="digital_twin_map_topic" default="/digital_twin/map"/>
+  <arg name="digital_twin_map_resolution" default="0.10"/>
+  <arg name="digital_twin_scan_origin_x" default="0.0"/>
+  <arg name="digital_twin_scan_origin_y" default="0.0"/>
+  <arg name="frontier_planner" default="false"
+       description="Publish or send Nav2 goals at the known/unknown map edge."/>
+  <arg name="frontier_goal_topic" default="/digital_twin/frontier_goal"/>
+  <arg name="waypoint_arrived_topic" default="/digital_twin/waypoint_arrived"/>
+  <arg name="frontier_send_nav2_goals" default="false"/>
+  <arg name="trimble_windows_bridge" default="false"
+       description="Notify the Windows Perspective bridge about scan requests and waypoint arrivals."/>
+  <arg name="trimble_windows_url" default="http://127.0.0.1:8765"/>
+  <arg name="trimble_reference_scan_on_start" default="true"/>
+  <arg name="defect_map" default="false"
+       description="Persist AI defect markers for the digital twin."/>
+  <arg name="defect_map_store_path"
+       default="/tmp/digital_twin_defects.yaml"/>
+  <arg name="defect_map_markers_topic"
+       default="/digital_twin/defect_markers"/>
+  <arg name="defect_rescan_goals_topic"
+       default="/digital_twin/rescan_goals"/>
 
   <node if="$(var publish_camera)"
         pkg="defect_detection"
@@ -136,5 +173,86 @@
            value="$(var navigation_minimum_confidence)"/>
     <param name="priority_config_path"
            value="$(var navigation_priority_config)"/>
+  </node>
+
+  <node if="$(var trimble_scan_watcher)"
+        pkg="defect_detection"
+        exec="trimble_scan_watcher"
+        name="trimble_scan_watcher"
+        output="screen">
+    <param name="scan_directory" value="$(var trimble_scan_directory)"/>
+    <param name="output_topic" value="$(var trimble_scan_topic)"/>
+    <param name="frame_id" value="$(var trimble_scan_frame)"/>
+    <param name="max_points" value="$(var trimble_scan_max_points)"/>
+    <param name="require_scan_request"
+           value="$(var trimble_require_scan_request)"/>
+    <param name="scan_required_topic" value="$(var scan_required_topic)"/>
+  </node>
+
+  <node if="$(var scan_decision)"
+        pkg="defect_detection"
+        exec="scan_decision_node"
+        name="digital_twin_scan_decision"
+        output="screen">
+    <param name="detections_topic" value="$(var detections_2d_topic)"/>
+    <param name="scan_required_topic" value="$(var scan_required_topic)"/>
+    <param name="scan_reason_topic" value="$(var scan_reason_topic)"/>
+    <param name="confidence_threshold"
+           value="$(var scan_confidence_threshold)"/>
+    <param name="min_detections" value="$(var scan_min_detections)"/>
+    <param name="scan_cooldown_sec" value="$(var scan_cooldown_sec)"/>
+  </node>
+
+  <node if="$(var digital_twin_map)"
+        pkg="defect_detection"
+        exec="pointcloud_to_occupancy"
+        name="pointcloud_to_occupancy"
+        output="screen">
+    <param name="pointcloud_topic" value="$(var trimble_scan_topic)"/>
+    <param name="map_topic" value="$(var digital_twin_map_topic)"/>
+    <param name="resolution" value="$(var digital_twin_map_resolution)"/>
+    <param name="scan_origin_x" value="$(var digital_twin_scan_origin_x)"/>
+    <param name="scan_origin_y" value="$(var digital_twin_scan_origin_y)"/>
+  </node>
+
+  <node if="$(var frontier_planner)"
+        pkg="defect_detection"
+        exec="frontier_planner"
+        name="digital_twin_frontier_planner"
+        output="screen">
+    <param name="map_topic" value="$(var digital_twin_map_topic)"/>
+    <param name="goal_topic" value="$(var frontier_goal_topic)"/>
+    <param name="waypoint_arrived_topic" value="$(var waypoint_arrived_topic)"/>
+    <param name="target_frame" value="$(var navigation_target_frame)"/>
+    <param name="base_frame" value="$(var navigation_base_frame)"/>
+    <param name="send_nav2_goals" value="$(var frontier_send_nav2_goals)"/>
+  </node>
+
+  <node if="$(var trimble_windows_bridge)"
+        pkg="defect_detection"
+        exec="trimble_windows_bridge"
+        name="trimble_windows_bridge"
+        output="screen">
+    <param name="windows_url" value="$(var trimble_windows_url)"/>
+    <param name="scan_required_topic" value="$(var scan_required_topic)"/>
+    <param name="scan_reason_topic" value="$(var scan_reason_topic)"/>
+    <param name="waypoint_arrived_topic" value="$(var waypoint_arrived_topic)"/>
+    <param name="frontier_goal_topic" value="$(var frontier_goal_topic)"/>
+    <param name="request_reference_scan_on_start"
+           value="$(var trimble_reference_scan_on_start)"/>
+  </node>
+
+  <node if="$(var defect_map)"
+        pkg="defect_detection"
+        exec="defect_map_node"
+        name="digital_twin_defect_map"
+        output="screen">
+    <param name="detections_topic" value="$(var detections_3d_topic)"/>
+    <param name="markers_topic" value="$(var defect_map_markers_topic)"/>
+    <param name="rescan_goals_topic" value="$(var defect_rescan_goals_topic)"/>
+    <param name="target_frame" value="$(var navigation_target_frame)"/>
+    <param name="store_path" value="$(var defect_map_store_path)"/>
+    <param name="minimum_confidence"
+           value="$(var navigation_minimum_confidence)"/>
   </node>
 </launch>

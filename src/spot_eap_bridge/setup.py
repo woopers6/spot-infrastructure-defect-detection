@@ -4,7 +4,7 @@ import os
 from setuptools import find_packages, setup
 
 
-package_name = 'spot_eap_bridge'
+package_name = 'pointcloud_bridge'
 
 
 setup(
@@ -27,14 +27,13 @@ setup(
         ),
     ],
     install_requires=[
-        'bosdyn-client>=5.0',
         'numpy',
         'setuptools',
     ],
     zip_safe=True,
     maintainer='avaradar',
     maintainer_email='arunvaradarajan3@gmail.com',
-    description='ROS 2 network bridge for Spot EAP LiDAR point clouds.',
+    description='ROS 2 bridge for normalizing incoming point clouds.',
     license='Apache-2.0',
     extras_require={
         'test': [
@@ -42,11 +41,9 @@ setup(
         ],
     },
     entry_points={
-        'console_scripts': [
+            'console_scripts': [
             'pointcloud_bridge = '
-            'spot_eap_bridge.pointcloud_bridge:main',
-            'spot_sdk_pointcloud = '
-            'spot_eap_bridge.spot_sdk_pointcloud:main',
+            'pointcloud_bridge.pointcloud_bridge:main',
         ],
     },
 )

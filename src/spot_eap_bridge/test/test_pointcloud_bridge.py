@@ -2,7 +2,7 @@ from builtin_interfaces.msg import Time
 import pytest
 from sensor_msgs.msg import PointCloud2, PointField
 
-from spot_eap_bridge.pointcloud_bridge import (
+from pointcloud_bridge.pointcloud_bridge import (
     normalize_cloud,
     validate_timestamp,
 )

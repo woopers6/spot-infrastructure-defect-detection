@@ -31,7 +31,7 @@ colcon build --symlink-install
 if [[ ! -f config/field.env ]]; then
   cp config/field.env.example config/field.env
   chmod 600 config/field.env
-  echo "Created config/field.env. Add Spot credentials before field use."
+  echo "Created config/field.env. Add site-specific field settings before use."
 fi
 
 echo "Bootstrap complete."

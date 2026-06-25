@@ -1,24 +1,32 @@
-# Spot Infrastructure Defect Detection
+# Infrastructure Defect Detection
 
-ROS 2 packages for capturing USB-camera images, running YOLO defect detection,
-receiving Spot EAP Velodyne point clouds, and associating 2D detections with
-LiDAR points.
-
-## Packages
-
-- `defect_detection`: camera publisher, YOLO detector, test subscribers, and
-  2D-to-3D fusion.
-- `spot_eap_bridge`: Spot SDK point-cloud client and ROS topic normalization.
+ROS 2 workspace for USB-camera defect detection, generic point-cloud fusion,
+Trimble X7 scan ingestion, digital-twin markers, and Nav2 reinspection goals.
 
 ## Pipeline
 
 ```text
-USB webcam -> /ros2_image -> YOLO -> /detections_2d
-                                             |
-Spot EAP LiDAR -> Spot SDK -> /spot/velodyne/points
-                                             |
-                                             v
-                                      /detections_3d
+USB camera -> /ros2_image -> YOLO -> /detections_2d
+                                      |
+                                      v
+                           scan_decision_node
+                                      |
+                                      v
+                         /digital_twin/scan_required
+
+Trimble X7 LAS/LAZ folder -> /trimble/x7/scan_points
+                                      |
+                                      v
+                /digital_twin/map + /digital_twin/defect_markers
+                                      |
+                                      v
+                       frontier/rescan goals for Nav2
+```
+
+Generic live or simulated point clouds can still be bridged:
+
+```text
+/lidar/raw -> pointcloud_bridge -> /lidar/points -> /detections_3d
 ```
 
 ## Requirements
@@ -26,17 +34,16 @@ Spot EAP LiDAR -> Spot SDK -> /spot/velodyne/points
 - ROS 2 Jazzy
 - Python 3.12
 - OpenCV and `cv_bridge`
-- Ultralytics
-- Boston Dynamics Spot SDK
+- Ultralytics for YOLO
+- `laspy` and `lazrs` for LAS/LAZ scan ingestion
 
-Install the Python dependencies used outside the ROS package index:
+Install field Python dependencies:
 
 ```bash
-python3 -m pip install --user --break-system-packages \
-  bosdyn-api bosdyn-client bosdyn-core ultralytics
+python3 -m pip install --user --break-system-packages -r requirements-field.txt
 ```
 
-Build the workspace:
+Build:
 
 ```bash
 cd ~/ros2_ws
@@ -45,179 +52,100 @@ colcon build --symlink-install
 source install/setup.bash
 ```
 
-## Construction-Site Setup
+## Field Setup
 
-Create a machine-specific field configuration once:
+Create a machine-specific config:
 
 ```bash
 cp config/field.env.example config/field.env
 ```
 
-Edit `config/field.env` with the Spot address, credentials, camera index, and
-model/calibration paths. The defaults follow the workspace when it is moved.
-This file is ignored by git.
+Edit camera, model, calibration, Nav2, and Trimble scan-folder settings. The X7
+workflow assumes scans are written as completed `.las` or `.laz` files into the
+configured folder.
 
-Commission the hardware in transport mode first:
+Run transport/digital-twin bringup:
 
 ```bash
 ./scripts/run_field.sh transport
 ```
 
-This runs the webcam, Spot SDK client, point-cloud bridge, visualization node,
-and optionally RViz. The Spot and webcam clients reconnect automatically if
-Wi-Fi or USB is temporarily unavailable.
-
-After installing the model and completing camera-LiDAR calibration, set
-`calibrated: true` in the calibration YAML and run:
+Run full detection/fusion once the YOLO engine and calibration are ready:
 
 ```bash
 ./scripts/run_field.sh full
 ```
 
-The preflight check blocks full mode when credentials, webcam, model, dataset,
-or validated calibration are missing. It also prevents placeholder calibration
-from producing misleading 3D detections.
+## Efficient X7 Scan Gate
 
-Create a clean transfer archive for another ROS 2 Jazzy computer:
+The scan decision node prevents wasting X7 scans when detections are absent,
+stale, or low confidence. It publishes:
 
-```bash
-./scripts/export_field_bundle.sh
+- `/digital_twin/scan_required` (`std_msgs/Bool`)
+- `/digital_twin/scan_reason` (`std_msgs/String`)
+
+Defaults:
+
+```text
+scan_confidence_threshold:=0.65
+scan_min_detections:=1
+scan_cooldown_sec:=60.0
 ```
 
-The archive includes source, scripts, configuration templates, calibration,
-and model files present in the workspace. It excludes build products, logs,
-git history, and `config/field.env` credentials. On the destination, with
-ROS 2 Jazzy already installed:
+The Trimble scan watcher defaults to `trimble_require_scan_request:=true`, so
+it only ingests the next completed scan after a high-confidence request.
+
+For the first station/reference scan, enable the Windows bridge. It requests a
+reference scan on startup even when there are no detections:
 
 ```bash
-./scripts/bootstrap_field_machine.sh
+ros2 launch pointcloud_bridge full_pipeline.launch.xml \
+  trimble_windows_bridge:=true \
+  trimble_windows_url:=http://WINDOWS_IP:8765 \
+  trimble_reference_scan_on_start:=true
 ```
 
-## Hardware Test
+## Digital Twin And Nav2
 
-Connect this computer to Spot's network and set credentials:
+The X7 scan watcher publishes `/trimble/x7/scan_points`. The occupancy builder
+turns that into `/digital_twin/map`. The frontier planner finds reachable
+known/unknown edges and publishes `/digital_twin/frontier_goal`; it only sends
+Nav2 goals when `frontier_send_nav2_goals:=true`.
 
-```bash
-export SPOT_IP=YOUR_SPOT_IP
-export BOSDYN_CLIENT_USERNAME=YOUR_USERNAME
-export BOSDYN_CLIENT_PASSWORD=YOUR_PASSWORD
+The defect map node persists AI markers to YAML and republishes them as:
+
+- `/digital_twin/defect_markers`
+- `/digital_twin/rescan_goals`
+
+## Windows Perspective Bridge
+
+Run the companion app on the Windows machine that controls Trimble Perspective:
+
+```powershell
+python tools\trimble_perspective_bridge\windows_app.py
 ```
 
-Run the webcam and EAP LiDAR transport without detection or fusion:
+Press `Start` in the app to SSH into the Jetson, build the ROS workspace, launch
+the autonomy/digital-twin stack, and wait for the Jetson to report ready. Press
+`Stop + Download Twin` to stop the Jetson ROS launch and copy configured
+digital-twin outputs back to the Windows computer.
 
-```bash
-ros2 launch spot_eap_bridge full_pipeline.launch.xml \
-  image_monitor:=true \
-  pointcloud_monitor:=true \
-  detector:=false \
-  fusion:=false
+The app also listens for Jetson scan requests, optionally launches Perspective,
+watches the Perspective export folder, and prepares a Jetson-sized `.las` or
+`.laz` copy before transfer. Full-resolution raw scans stay on the Windows
+machine by default; this keeps Wi-Fi transfer practical.
+
+Recommended Wi-Fi starting point:
+
+```text
+Jetson max points: 500000
+Remote twin paths: /tmp/digital_twin_defects.yaml
 ```
-
-Verify publication rates in another sourced terminal:
-
-```bash
-ros2 topic hz /ros2_image
-ros2 topic hz /spot/velodyne/points
-```
-
-The Spot client defaults to the `velodyne-point-cloud` directory service and
-automatically selects a source containing `velodyne`. See
-[`src/spot_eap_bridge/README.md`](src/spot_eap_bridge/README.md) for overrides
-and timestamp details.
-
-## Detection
-
-Place these files in `src/defect_detection/models/` before enabling YOLO:
-
-- `dataset.yaml`
-- `yolov11m.engine`
-
-The TensorRT engine must be compatible with the target GPU and TensorRT
-version. Then launch with:
-
-```bash
-ros2 launch spot_eap_bridge full_pipeline.launch.xml detector:=true
-```
-
-## RViz Visualization
-
-The visualization node republishes:
-
-- The complete cloud on `/rviz/pointcloud`
-- 3D bounding boxes and labels on `/detection_markers`
-
-Start the full pipeline and the configured RViz window with:
-
-```bash
-ros2 launch spot_eap_bridge full_pipeline.launch.xml \
-  detector:=true \
-  fusion:=true \
-  visualization:=true \
-  rviz:=true
-```
-
-The RViz configuration includes a `PointCloud2` display and a `MarkerArray`
-display. Its fixed frame defaults to `lidar`, matching the default bridge
-configuration. Change RViz's **Global Options > Fixed Frame** if the cloud uses
-a different `header.frame_id`.
-
-## Autonomous Defect Reinspection
-
-The autonomous navigator consumes `/detections_3d`, transforms detections into
-`map`, merges repeated observations, ranks targets by class priority,
-confidence, size, and observation count, then asks Nav2 to plan to several
-stand-off poses around the defect. It selects the shortest reachable pose and
-faces the robot toward the defect rather than commanding the defect position.
-
-This node requires an existing Nav2 stack for Spot, including a map or SLAM
-source, the `map -> odom -> base_link` TF chain, costmaps, planner/controller
-servers, and a Spot velocity-command bridge. The RViz point cloud alone is not
-a navigation map.
-
-Install package dependencies and rebuild:
-
-```bash
-rosdep install --from-paths src --ignore-src -r -y
-colcon build --symlink-install
-source install/setup.bash
-```
-
-First run in preview mode. This plans and publishes the selected goal but does
-not send a motion command:
-
-```bash
-ros2 launch spot_eap_bridge full_pipeline.launch.xml \
-  detector:=true fusion:=true rviz:=true \
-  autonomous_navigation:=true \
-  autonomous_navigation_enabled:=false
-```
-
-Verify `/autonomous_navigation/selected_goal` and
-`/autonomous_navigation/markers` in RViz. Set the RViz fixed frame to `map`.
-Only after Nav2 can safely navigate Spot with ordinary goals, enable movement
-with `autonomous_navigation_enabled:=true`.
-
-Edit `config/navigation_priorities.yaml` to assign larger values to more
-urgent Detection3D class IDs. Field deployments can set
-`AUTONOMOUS_NAVIGATION=true`, keep `AUTONOMOUS_NAVIGATION_ENABLED=false` for
-preview, and set `NAVIGATION_PRIORITY_CONFIG` in `config/field.env`.
-
-## Fusion Status
-
-The fusion algorithm and synthetic tests are implemented, but live fusion
-requires real calibration values in `config/site_calibration.yaml`:
-
-- Webcam intrinsic matrix
-- LiDAR-to-camera extrinsic transform
-- Camera image dimensions
-
-Keep `calibrated: false` and `fusion:=false` until those values are replaced
-with calibration from the rigidly mounted webcam and EAP LiDAR.
 
 ## Tests
 
 ```bash
 source /opt/ros/jazzy/setup.bash
-colcon test --packages-select defect_detection spot_eap_bridge
+colcon test --packages-select defect_detection pointcloud_bridge
 colcon test-result --verbose
 ```

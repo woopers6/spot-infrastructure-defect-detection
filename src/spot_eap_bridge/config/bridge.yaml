@@ -1,7 +1,7 @@
-spot_eap_pointcloud_bridge:
+pointcloud_bridge:
   ros__parameters:
-    input_topic: /eap/lidar/points
-    output_topic: /spot/velodyne/points
+    input_topic: /lidar/raw
+    output_topic: /lidar/points
     output_frame: lidar
     max_cloud_age_sec: 0.5
     max_future_offset_sec: 0.05

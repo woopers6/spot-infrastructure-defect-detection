@@ -17,7 +17,7 @@ import carb
 import omni.graph.core as og
 import omni.timeline
 import omni.usd
-from pxr import Gf, Sdf, UsdGeom
+from pxr import Gf, Sdf, UsdGeom, UsdPhysics
 
 
 SCRIPT_PATH = Path(
@@ -29,9 +29,11 @@ GENERATED_USD = Path(
 CULVERT_PRIM_PATH = "/World/GeneratedCulvert"
 CAMERA_PRIM_PATH = "/World/FusionRig/Camera"
 GRAPH_PATH = "/World/FusionRig/ROS2Graph"
+GROUND_PRIM_PATH = "/World/SimulationGround"
+PHYSICS_SCENE_PATH = "/World/PhysicsScene"
 
 IMAGE_TOPIC = "/ros2_image"
-POINTCLOUD_TOPIC = "/eap/lidar/points"
+POINTCLOUD_TOPIC = "/lidar/raw"
 CAMERA_FRAME_ID = "camera_optical_frame"
 POINTCLOUD_FRAME_ID = "camera_optical_frame"
 WIDTH = 1280
@@ -62,11 +64,12 @@ def _ensure_xform(stage, path):
     return UsdGeom.Xform.Define(stage, path).GetPrim()
 
 
-def _set_transform(prim, translation, rotation_xyz):
+def _set_transform(prim, translation, rotation_xyz, scale=(1.0, 1.0, 1.0)):
     xform = UsdGeom.Xformable(prim)
     xform.ClearXformOpOrder()
     xform.AddTranslateOp().Set(Gf.Vec3d(*translation))
     xform.AddRotateXYZOp().Set(Gf.Vec3f(*rotation_xyz))
+    xform.AddScaleOp().Set(Gf.Vec3f(*scale))
 
 
 def _remove_prim(stage, path):
@@ -79,14 +82,29 @@ def _create_or_update_camera(stage):
     camera = UsdGeom.Camera.Define(stage, CAMERA_PRIM_PATH)
     _set_transform(
         camera.GetPrim(),
-        translation=(0.0, -7.5, 0.0),
+        translation=(0.0, -10.5, 0.15),
         rotation_xyz=(90.0, 0.0, 0.0),
     )
     camera.CreateHorizontalApertureAttr(HORIZONTAL_APERTURE_MM)
     camera.CreateFocalLengthAttr(FOCAL_LENGTH_MM)
-    camera.CreateFocusDistanceAttr(7.5)
+    camera.CreateFocusDistanceAttr(10.5)
     camera.CreateClippingRangeAttr(Gf.Vec2f(0.05, 1000.0))
     return camera.GetPrim()
+
+
+def _create_or_update_ground(stage):
+    UsdPhysics.Scene.Define(stage, PHYSICS_SCENE_PATH)
+    ground = UsdGeom.Cube.Define(stage, GROUND_PRIM_PATH)
+    ground.CreateSizeAttr(1.0)
+    _set_transform(
+        ground.GetPrim(),
+        translation=(0.0, 0.0, -0.05),
+        rotation_xyz=(0.0, 0.0, 0.0),
+        scale=(100.0, 100.0, 0.10),
+    )
+    UsdPhysics.CollisionAPI.Apply(ground.GetPrim())
+    ground.GetPrim().CreateAttribute("culvert:purpose", Sdf.ValueTypeNames.String).Set("static_fall_catcher")
+    return ground.GetPrim()
 
 
 def _connect(graph, source, target):
@@ -161,6 +179,7 @@ def load_scene():
     _set_transform(culvert.GetPrim(), translation=(0.0, 0.0, 0.0), rotation_xyz=(0.0, 0.0, 0.0))
 
     _ensure_xform(stage, "/World/FusionRig")
+    _create_or_update_ground(stage)
     _create_or_update_camera(stage)
     _create_ros_graph(stage)
 

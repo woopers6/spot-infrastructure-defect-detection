@@ -4,25 +4,28 @@ set -euo pipefail
 WORKSPACE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export WORKSPACE_ROOT
 
+set +u
 source /opt/ros/jazzy/setup.bash
+set -u
 if [[ ! -f "${WORKSPACE_ROOT}/install/setup.bash" ]]; then
   echo "Workspace is not built. Run: colcon build --symlink-install"
   exit 1
 fi
 # shellcheck disable=SC1091
+set +u
 source "${WORKSPACE_ROOT}/install/setup.bash"
+set -u
 
 export ROS_LOG_DIR="${ROS_LOG_DIR:-${WORKSPACE_ROOT}/log/isaac_fusion}"
 export YOLO_CONFIG_DIR="${YOLO_CONFIG_DIR:-${WORKSPACE_ROOT}/.runtime/ultralytics}"
 mkdir -p "${ROS_LOG_DIR}" "${YOLO_CONFIG_DIR}"
 
-exec ros2 launch spot_eap_bridge full_pipeline.launch.xml \
-  use_spot_sdk:=false \
+exec ros2 launch pointcloud_bridge full_pipeline.launch.xml \
   publish_camera:=false \
-  eap_lidar_topic:="${ISAAC_POINTCLOUD_TOPIC:-/eap/lidar/points}" \
+  lidar_input_topic:="${ISAAC_POINTCLOUD_TOPIC:-/lidar/raw}" \
   image_topic:="${ISAAC_IMAGE_TOPIC:-/ros2_image}" \
   detections_2d_topic:="${DETECTIONS_2D_TOPIC:-/detections_2d}" \
-  pointcloud_topic:="${POINTCLOUD_TOPIC:-/spot/velodyne/points}" \
+  pointcloud_topic:="${POINTCLOUD_TOPIC:-/lidar/points}" \
   detections_3d_topic:="${DETECTIONS_3D_TOPIC:-/detections_3d}" \
   timestamp_mode:="${TIMESTAMP_MODE:-source}" \
   max_cloud_age_sec:="${MAX_CLOUD_AGE_SEC:-2.0}" \

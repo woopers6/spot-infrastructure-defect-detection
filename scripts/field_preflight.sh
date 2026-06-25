@@ -37,10 +37,6 @@ check_file() {
   fi
 }
 
-check_value SPOT_IP
-check_value BOSDYN_CLIENT_USERNAME
-check_value BOSDYN_CLIENT_PASSWORD
-
 camera_index="${CAMERA_INDEX:-0}"
 if [[ -e "/dev/video${camera_index}" ]]; then
   printf 'OK:   webcam device: /dev/video%s\n' "${camera_index}"
@@ -49,10 +45,18 @@ else
   failures=$((failures + 1))
 fi
 
-if python3 -c 'import bosdyn.client, rclpy' >/dev/null 2>&1; then
-  printf 'OK:   Spot SDK and ROS Python imports\n'
+if python3 -c 'import rclpy, laspy, lazrs' >/dev/null 2>&1; then
+  printf 'OK:   ROS Python and LAS/LAZ imports\n'
 else
-  printf 'FAIL: Spot SDK or ROS Python import is unavailable\n'
+  printf 'FAIL: ROS Python or LAS/LAZ import is unavailable\n'
+  failures=$((failures + 1))
+fi
+
+trimble_scan_directory="${TRIMBLE_SCAN_DIRECTORY:-/tmp/trimble_scans}"
+if [[ -d "${trimble_scan_directory}" ]]; then
+  printf 'OK:   Trimble scan directory: %s\n' "${trimble_scan_directory}"
+else
+  printf 'FAIL: Trimble scan directory missing: %s\n' "${trimble_scan_directory}"
   failures=$((failures + 1))
 fi
 
@@ -60,7 +64,7 @@ if [[ "${AUTONOMOUS_NAVIGATION_ENABLED:-false}" == "true" &&
       "${AUTONOMOUS_NAVIGATION:-false}" != "true" ]]; then
   printf 'FAIL: AUTONOMOUS_NAVIGATION_ENABLED requires AUTONOMOUS_NAVIGATION=true\n'
   failures=$((failures + 1))
-fi
+fi  
 
 if [[ "${AUTONOMOUS_NAVIGATION:-false}" == "true" ]]; then
   if python3 -c 'import nav2_msgs' >/dev/null 2>&1; then

@@ -13,7 +13,7 @@ class PointCloudSubscriber(Node):
 
         self.subscription = self.create_subscription(
             PointCloud2,
-            '/spot/velodyne/points',
+            '/lidar/points',
             self.listener_callback,
             qos_profile_sensor_data,
         )
