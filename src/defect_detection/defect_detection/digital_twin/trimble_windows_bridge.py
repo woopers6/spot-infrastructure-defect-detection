@@ -105,12 +105,14 @@ class TrimbleWindowsBridge(Node):
                 'node': 'trimble_windows_bridge',
             },
         )
+        self.post_status('Jetson Ready', 'ROS stack started')
 
     def startup_tick(self):
         if self.reference_requested or not self.request_reference_scan_on_start:
             return
         self.reference_requested = True
         self.open_scan_watcher_gate()
+        self.post_status('Scanning', 'Requesting initial reference scan')
         self.send_scan_request(
             {
                 'scan_type': 'reference',
@@ -128,6 +130,7 @@ class TrimbleWindowsBridge(Node):
         if self.suppress_next_scan_required:
             self.suppress_next_scan_required = False
             return
+        self.post_status('Scanning', self.last_reason or 'Requesting defect rescan')
         self.send_scan_request(
             {
                 'scan_type': 'defect_rescan',
@@ -142,12 +145,21 @@ class TrimbleWindowsBridge(Node):
             'y': goal.pose.position.y,
             'z': goal.pose.position.z,
         }
+        self.post_status(
+            'Navigating',
+            (
+                'Nav2 frontier goal: '
+                f'x={goal.pose.position.x:.2f}, '
+                f'y={goal.pose.position.y:.2f}'
+            ),
+        )
 
     def waypoint_arrived_callback(self, message):
         payload = {
             'reason': message.data,
             'frontier_goal': self.last_frontier_goal,
         }
+        self.post_status('Waypoint Arrived', message.data)
         self.open_scan_watcher_gate()
         self.post('/waypoint_arrived', payload)
 
@@ -176,6 +188,9 @@ class TrimbleWindowsBridge(Node):
             self.get_logger().info(f'POST {path} -> {status}: {body}')
         except (OSError, urlerror.URLError, TimeoutError) as error:
             self.get_logger().warning(f'POST {path} failed: {error}')
+
+    def post_status(self, state, detail=''):
+        self.post('/process_status', {'state': state, 'detail': detail})
 
 
 def main(args=None):

@@ -91,6 +91,10 @@ class BridgeHandler(BaseHTTPRequestHandler):
             self.server.app.enqueue_jetson_ready(body)
             self.send_json(202, {'accepted': True})
             return
+        if self.path == '/process_status':
+            self.server.app.enqueue_process_status(body)
+            self.send_json(202, {'accepted': True})
+            return
         self.send_json(404, {'error': 'not found'})
 
     def read_json(self):
@@ -151,6 +155,8 @@ class TrimblePerspectiveBridgeApp:
         self.last_scan_request = None
         self.jetson_process = None
         self.jetson_ready = False
+        self.process_state = 'Idle'
+        self.process_detail = 'Waiting for Start'
 
         self.root = tk.Tk()
         self.root.title('Trimble Perspective Bridge')
@@ -158,7 +164,8 @@ class TrimblePerspectiveBridgeApp:
 
         self.variables = {}
         self.log_text = None
-        self.status_var = tk.StringVar(value='Starting...')
+        self.status_var = tk.StringVar(value='State: Starting')
+        self.detail_var = tk.StringVar(value='Initializing Windows bridge...')
         self.server = None
         self.server_thread = None
         self.watch_thread = None
@@ -179,6 +186,12 @@ class TrimblePerspectiveBridgeApp:
             font=('Segoe UI', 11, 'bold'),
         )
         status.pack(anchor='w', pady=(0, 10))
+        detail = ttk.Label(
+            outer,
+            textvariable=self.detail_var,
+            font=('Segoe UI', 10),
+        )
+        detail.pack(anchor='w', pady=(0, 10))
 
         form = ttk.Frame(outer)
         form.pack(fill='x')
@@ -342,6 +355,7 @@ class TrimblePerspectiveBridgeApp:
         self.watch_thread = threading.Thread(target=self.watch_exports, daemon=True)
         self.watch_thread.start()
         self.status_var.set(f'Listening on http://{host}:{port}')
+        self.set_state('Idle', f'Listening on http://{host}:{port}')
         self.log(f'HTTP server listening on {host}:{port}')
 
     def watch_exports(self):
@@ -367,6 +381,9 @@ class TrimblePerspectiveBridgeApp:
     def enqueue_jetson_ready(self, payload):
         self.events.put(('jetson_ready', payload))
 
+    def enqueue_process_status(self, payload):
+        self.events.put(('process_status', payload))
+
     def process_events(self):
         while True:
             try:
@@ -381,14 +398,23 @@ class TrimblePerspectiveBridgeApp:
                 self.handle_waypoint_arrival(payload)
             elif event == 'jetson_ready':
                 self.handle_jetson_ready(payload)
+            elif event == 'process_status':
+                self.handle_process_status(payload)
         self.root.after(250, self.process_events)
 
     def handle_jetson_ready(self, payload):
         self.jetson_ready = True
-        self.status_var.set('Jetson ROS is ready. Requesting reference scan.')
+        self.set_state('Jetson Ready', 'ROS is running; requesting reference scan')
         self.log(f'Jetson ready: {json.dumps(payload)}')
 
+    def handle_process_status(self, payload):
+        state = payload.get('state', 'Status')
+        detail = payload.get('detail') or payload.get('reason') or ''
+        self.set_state(state, detail)
+        self.log(f'Process status: {json.dumps(payload)}')
+
     def handle_waypoint_arrival(self, payload):
+        self.set_state('Waypoint Arrived', 'Robot reached a scan viewpoint')
         self.log(f'Jetson waypoint arrival: {json.dumps(payload)}')
         if self.config.get('auto_scan_on_waypoint', True):
             request = payload.copy()
@@ -399,6 +425,7 @@ class TrimblePerspectiveBridgeApp:
         self.pending_scan = True
         self.last_scan_request = payload
         reason = payload.get('reason') or payload.get('scan_type') or 'scan requested'
+        self.set_state('Scanning', reason)
         self.log(f'Scan requested: {reason}')
         self.request_scan()
 
@@ -428,7 +455,7 @@ class TrimblePerspectiveBridgeApp:
         try:
             self.save_config()
             self.jetson_ready = False
-            self.status_var.set('Starting Jetson ROS...')
+            self.set_state('Starting Jetson', 'Building and launching ROS over SSH')
             thread = threading.Thread(target=self.run_jetson_start, daemon=True)
             thread.start()
         except Exception as error:
@@ -436,7 +463,7 @@ class TrimblePerspectiveBridgeApp:
 
     def stop_system(self):
         try:
-            self.status_var.set('Stopping Jetson ROS and downloading twin...')
+            self.set_state('Stopping', 'Stopping ROS and downloading digital twin')
             thread = threading.Thread(target=self.run_jetson_stop, daemon=True)
             thread.start()
         except Exception as error:
@@ -471,6 +498,10 @@ class TrimblePerspectiveBridgeApp:
         self.events.put(('log', f'Stopping Jetson with: {stop_command}'))
         self.run_command(stop_command)
         self.download_digital_twin()
+        self.events.put((
+            'process_status',
+            {'state': 'Stopped', 'detail': 'Digital twin download complete'},
+        ))
         self.events.put(('log', 'Stop/download complete'))
 
     def remote_start_command(self):
@@ -535,6 +566,10 @@ class TrimblePerspectiveBridgeApp:
             return 1
 
     def download_digital_twin(self):
+        self.events.put((
+            'process_status',
+            {'state': 'Downloading Twin', 'detail': 'Copying artifacts from Jetson'},
+        ))
         local_dir = Path(self.config['local_digital_twin_dir'])
         local_dir.mkdir(parents=True, exist_ok=True)
         remote_paths = [
@@ -569,17 +604,21 @@ class TrimblePerspectiveBridgeApp:
         self.transfer_scan(scan)
 
     def transfer_scan(self, scan):
+        self.set_state('Preparing Upload', f'Preparing {scan.name} for Jetson')
         transfer_source = scan
         if self.config.get('transfer_reduced_scan', True):
             transfer_source = self.create_reduced_scan(scan)
             if transfer_source is None:
                 return
 
+        self.set_state('Uploading Scan', f'Copying {transfer_source.name} to Jetson')
         destination_dir = Path(self.config['jetson_scan_dir'])
         destination_dir.mkdir(parents=True, exist_ok=True)
         destination = destination_dir / transfer_source.name
         shutil.copy2(transfer_source, destination)
         self.last_transferred = scan
+        self.pending_scan = False
+        self.set_state('Scan Uploaded', f'{transfer_source.name} is ready on Jetson')
         self.log(f'Transferred {transfer_source.name} -> {destination}')
 
     def create_reduced_scan(self, scan):
@@ -640,7 +679,15 @@ class TrimblePerspectiveBridgeApp:
                 str(self.last_transferred) if self.last_transferred else None
             ),
             'last_scan_request': self.last_scan_request,
+            'process_state': self.process_state,
+            'process_detail': self.process_detail,
         }
+
+    def set_state(self, state, detail=''):
+        self.process_state = state
+        self.process_detail = detail
+        self.status_var.set(f'State: {state}')
+        self.detail_var.set(detail)
 
     def log(self, message):
         timestamp = time.strftime('%H:%M:%S')
