@@ -10,6 +10,7 @@ import threading
 import time
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
+import webbrowser
 
 
 SCAN_SUFFIXES = {'.las', '.laz', '.e57'}
@@ -59,6 +60,244 @@ def windows_http_url(config):
     return f'http://{host}:{int(config["listen_port"])}'
 
 
+def dashboard_html():
+    return """<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TxDOT Digital Twin Inspection Console</title>
+  <style>
+    :root {
+      --blue: #003f6b;
+      --light-blue: #1788c9;
+      --red: #bf0d3e;
+      --ink: #17212f;
+      --muted: #657386;
+      --bg: #eef3f8;
+      --card: #ffffff;
+      --line: #d9e3ef;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+    header {
+      background: linear-gradient(135deg, var(--blue), #075c91);
+      color: white;
+      padding: 28px 34px 24px;
+      border-bottom: 6px solid var(--red);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+    .mark {
+      width: 112px;
+      height: 72px;
+      border-radius: 10px;
+      background: white;
+      color: var(--blue);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      letter-spacing: .04em;
+      line-height: 1.05;
+      text-align: center;
+      box-shadow: 0 10px 28px rgba(0,0,0,.18);
+    }
+    h1 { margin: 0; font-size: 30px; letter-spacing: .01em; }
+    .subtitle { margin-top: 6px; color: #cfe8fa; font-size: 15px; }
+    main {
+      max-width: 1180px;
+      margin: 24px auto;
+      padding: 0 18px 32px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(24, 43, 64, .07);
+      padding: 18px;
+    }
+    .state {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      background: #e8f4fb;
+      color: var(--blue);
+      border: 1px solid #c4dfef;
+      padding: 8px 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--light-blue);
+      box-shadow: 0 0 0 4px rgba(23,136,201,.15);
+    }
+    h2 {
+      margin: 0 0 12px;
+      color: var(--blue);
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .big {
+      font-size: 34px;
+      font-weight: 800;
+      color: var(--blue);
+      margin: 8px 0 6px;
+    }
+    .detail { color: var(--muted); font-size: 15px; min-height: 22px; }
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 13px 14px;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 14px;
+      transition: transform .08s ease, filter .12s ease;
+    }
+    button:hover { filter: brightness(.96); }
+    button:active { transform: translateY(1px); }
+    .primary { background: var(--blue); color: white; }
+    .danger { background: var(--red); color: white; }
+    .secondary { background: #dfeaf3; color: var(--blue); }
+    dl {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 9px 12px;
+      margin: 0;
+    }
+    dt { color: var(--muted); }
+    dd { margin: 0; font-weight: 650; word-break: break-word; }
+    .log {
+      margin-top: 18px;
+      background: #071524;
+      color: #dbeafe;
+      border-radius: 10px;
+      padding: 14px;
+      height: 260px;
+      overflow: auto;
+      font: 13px/1.45 Consolas, monospace;
+    }
+    .event { border-bottom: 1px solid rgba(255,255,255,.08); padding: 4px 0; }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+      .actions { grid-template-columns: 1fr; }
+      .brand { align-items: flex-start; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="mark">TxDOT<br>DT</div>
+      <div>
+        <h1>Digital Twin Inspection Console</h1>
+        <div class="subtitle">Spot autonomy, Trimble X7 scanning, AI defect markers, and Nav2 reinspection</div>
+      </div>
+    </div>
+  </header>
+  <main>
+    <div class="grid">
+      <section class="card">
+        <div class="state">
+          <div>
+            <h2>Mission State</h2>
+            <div class="big" id="state">Loading...</div>
+            <div class="detail" id="detail"></div>
+          </div>
+          <div class="pill"><span class="dot"></span><span id="health">Checking</span></div>
+        </div>
+        <div class="actions">
+          <button class="primary" onclick="post('/ui/start')">Start Mission</button>
+          <button class="danger" onclick="post('/ui/stop')">Stop + Download Twin</button>
+          <button class="secondary" onclick="post('/scan_request', {scan_type:'manual', reason:'dashboard manual scan'})">Request Scan</button>
+        </div>
+      </section>
+      <section class="card">
+        <h2>System Snapshot</h2>
+        <dl>
+          <dt>Pending Scan</dt><dd id="pending">-</dd>
+          <dt>Last Transfer</dt><dd id="transfer">-</dd>
+          <dt>Last Request</dt><dd id="request">-</dd>
+          <dt>Windows Bridge</dt><dd>http://127.0.0.1:8765</dd>
+        </dl>
+      </section>
+    </div>
+    <section class="card" style="margin-top:18px">
+      <h2>Mission Log</h2>
+      <div class="log" id="log"></div>
+    </section>
+  </main>
+  <script>
+    async function post(path, body = {}) {
+      await fetch(path, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      });
+      await refresh();
+    }
+    function text(value) {
+      if (value === null || value === undefined || value === '') return '-';
+      if (typeof value === 'object') return JSON.stringify(value);
+      return String(value);
+    }
+    async function refresh() {
+      try {
+        const res = await fetch('/status');
+        const data = await res.json();
+        document.getElementById('health').textContent = data.ok ? 'Online' : 'Offline';
+        document.getElementById('state').textContent = text(data.process_state);
+        document.getElementById('detail').textContent = text(data.process_detail);
+        document.getElementById('pending').textContent = data.pending_scan ? 'Yes' : 'No';
+        document.getElementById('transfer').textContent = text(data.last_transferred);
+        document.getElementById('request').textContent = text(data.last_scan_request);
+        const log = document.getElementById('log');
+        log.innerHTML = (data.recent_events || []).map(e => `<div class="event">${e}</div>`).join('');
+        log.scrollTop = log.scrollHeight;
+      } catch (error) {
+        document.getElementById('health').textContent = 'Offline';
+        document.getElementById('detail').textContent = error;
+      }
+    }
+    refresh();
+    setInterval(refresh, 1000);
+  </script>
+</body>
+</html>"""
+
+
 class BridgeServer(ThreadingHTTPServer):
 
     def __init__(self, address, app):
@@ -72,7 +311,10 @@ class BridgeHandler(BaseHTTPRequestHandler):
         self.server.app.log(f'HTTP: {fmt % args}')
 
     def do_GET(self):
-        if self.path == '/health':
+        if self.path in {'/', '/dashboard'}:
+            self.send_html(200, dashboard_html())
+            return
+        if self.path in {'/health', '/status'}:
             self.send_json(200, self.server.app.status_payload())
             return
         self.send_json(404, {'error': 'not found'})
@@ -95,6 +337,18 @@ class BridgeHandler(BaseHTTPRequestHandler):
             self.server.app.enqueue_process_status(body)
             self.send_json(202, {'accepted': True})
             return
+        if self.path == '/camera_frame':
+            self.server.app.enqueue_camera_frame(body)
+            self.send_json(202, {'accepted': True})
+            return
+        if self.path == '/ui/start':
+            self.server.app.enqueue_ui_start()
+            self.send_json(202, {'accepted': True})
+            return
+        if self.path == '/ui/stop':
+            self.server.app.enqueue_ui_stop()
+            self.send_json(202, {'accepted': True})
+            return
         self.send_json(404, {'error': 'not found'})
 
     def read_json(self):
@@ -108,6 +362,14 @@ class BridgeHandler(BaseHTTPRequestHandler):
         encoded = json.dumps(payload).encode('utf-8')
         self.send_response(status)
         self.send_header('content-type', 'application/json')
+        self.send_header('content-length', str(len(encoded)))
+        self.end_headers()
+        self.wfile.write(encoded)
+
+    def send_html(self, status, html):
+        encoded = html.encode('utf-8')
+        self.send_response(status)
+        self.send_header('content-type', 'text/html; charset=utf-8')
         self.send_header('content-length', str(len(encoded)))
         self.end_headers()
         self.wfile.write(encoded)
@@ -128,7 +390,7 @@ class TrimblePerspectiveBridgeApp:
         'remote_start_command': '',
         'remote_stop_command': '',
         'remote_digital_twin_paths': (
-            '/tmp/digital_twin_defects.yaml'
+            '/tmp/digital_twin_defects.yaml;/tmp/digital_twin_anchor.yaml'
         ),
         'local_digital_twin_dir': str(Path.home() / 'Documents' / 'DigitalTwin'),
         'perspective_exe': '',
@@ -143,6 +405,8 @@ class TrimblePerspectiveBridgeApp:
         'auto_transfer': True,
         'transfer_reduced_scan': True,
         'auto_scan_on_waypoint': True,
+        'logo_path': '',
+        'open_browser_on_start': True,
     }
 
     def __init__(self, config_path):
@@ -157,15 +421,29 @@ class TrimblePerspectiveBridgeApp:
         self.jetson_ready = False
         self.process_state = 'Idle'
         self.process_detail = 'Waiting for Start'
+        self.recent_events = []
+        self.latest_camera_payload = None
 
         self.root = tk.Tk()
-        self.root.title('Trimble Perspective Bridge')
-        self.root.geometry('980x760')
+        self.root.title('TxDOT Digital Twin Inspection Console')
+        self.root.geometry('1120x820')
+        self.root.configure(bg='#f4f7fb')
 
         self.variables = {}
         self.log_text = None
         self.status_var = tk.StringVar(value='State: Starting')
         self.detail_var = tk.StringVar(value='Initializing Windows bridge...')
+        self.jetson_status_var = tk.StringVar(value='Waiting')
+        self.trimble_status_var = tk.StringVar(value='Waiting')
+        self.upload_status_var = tk.StringVar(value='Waiting')
+        self.twin_status_var = tk.StringVar(value='Waiting')
+        self.camera_status_var = tk.StringVar(value='No camera frames yet')
+        self.detections_status_var = tk.StringVar(value='No detections yet')
+        self.logo_image = None
+        self.camera_image = None
+        self.logo_label = None
+        self.camera_label = None
+        self.detections_text = None
         self.server = None
         self.server_thread = None
         self.watch_thread = None
@@ -177,24 +455,233 @@ class TrimblePerspectiveBridgeApp:
         self.root.after(250, self.process_events)
 
     def build_ui(self):
-        outer = ttk.Frame(self.root, padding=12)
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure('.', font=('Segoe UI', 10))
+        style.configure('TFrame', background='#f4f7fb')
+        style.configure('Card.TFrame', background='white', relief='flat')
+        style.configure('Header.TFrame', background='#003f6b')
+        style.configure('HeaderTitle.TLabel', background='#003f6b',
+                        foreground='white', font=('Segoe UI', 20, 'bold'))
+        style.configure('HeaderSub.TLabel', background='#003f6b',
+                        foreground='#d9ecff', font=('Segoe UI', 10))
+        style.configure('State.TLabel', background='white',
+                        foreground='#003f6b', font=('Segoe UI', 16, 'bold'))
+        style.configure('Detail.TLabel', background='white',
+                        foreground='#263746', font=('Segoe UI', 10))
+        style.configure('Section.TLabel', background='#f4f7fb',
+                        foreground='#003f6b', font=('Segoe UI', 11, 'bold'))
+        style.configure('CardTitle.TLabel', background='white',
+                        foreground='#657386', font=('Segoe UI', 9, 'bold'))
+        style.configure('CardValue.TLabel', background='white',
+                        foreground='#003f6b', font=('Segoe UI', 14, 'bold'))
+        style.configure('Primary.TButton', background='#003f6b',
+                        foreground='white', padding=(14, 9))
+        style.map('Primary.TButton', background=[('active', '#075c91')])
+        style.configure('Danger.TButton', background='#bf0d3e',
+                        foreground='white', padding=(14, 9))
+        style.map('Danger.TButton', background=[('active', '#a80b36')])
+        style.configure('Tool.TButton', padding=(12, 8))
+        style.configure('TNotebook', background='#f4f7fb', borderwidth=0)
+        style.configure('TNotebook.Tab', padding=(16, 8))
+
+        outer = ttk.Frame(self.root, padding=14)
         outer.pack(fill='both', expand=True)
 
-        status = ttk.Label(
-            outer,
-            textvariable=self.status_var,
-            font=('Segoe UI', 11, 'bold'),
-        )
-        status.pack(anchor='w', pady=(0, 10))
-        detail = ttk.Label(
-            outer,
-            textvariable=self.detail_var,
-            font=('Segoe UI', 10),
-        )
-        detail.pack(anchor='w', pady=(0, 10))
+        header = ttk.Frame(outer, style='Header.TFrame', padding=16)
+        header.pack(fill='x', pady=(0, 12))
+        self.logo_label = ttk.Label(header, background='#003f6b')
+        self.logo_label.pack(side='left', padx=(0, 16))
+        title_block = ttk.Frame(header, style='Header.TFrame')
+        title_block.pack(side='left', fill='x', expand=True)
+        ttk.Label(
+            title_block,
+            text='TxDOT Digital Twin Inspection Console',
+            style='HeaderTitle.TLabel',
+        ).pack(anchor='w')
+        ttk.Label(
+            title_block,
+            text='Spot autonomy, Trimble X7 scan coordination, AI markers, and Nav2 reinspection',
+            style='HeaderSub.TLabel',
+        ).pack(anchor='w', pady=(4, 0))
 
-        form = ttk.Frame(outer)
-        form.pack(fill='x')
+        stripe = tk.Frame(outer, height=5, bg='#bf0d3e')
+        stripe.pack(fill='x', pady=(0, 12))
+
+        notebook = ttk.Notebook(outer)
+        notebook.pack(fill='both', expand=True)
+
+        mission_tab = ttk.Frame(notebook, padding=16)
+        settings_tab = ttk.Frame(notebook, padding=16)
+        notebook.add(mission_tab, text='Mission Control')
+        notebook.add(settings_tab, text='Settings')
+
+        state_card = ttk.Frame(mission_tab, style='Card.TFrame', padding=18)
+        state_card.pack(fill='x', pady=(0, 14))
+        ttk.Label(
+            state_card,
+            textvariable=self.status_var,
+            style='State.TLabel',
+        ).pack(anchor='w')
+        ttk.Label(
+            state_card,
+            textvariable=self.detail_var,
+            style='Detail.TLabel',
+        ).pack(anchor='w', pady=(5, 0))
+
+        cards = ttk.Frame(mission_tab)
+        cards.pack(fill='x', pady=(0, 14))
+        self.add_status_card(cards, 'Jetson / ROS2', self.jetson_status_var, 0)
+        self.add_status_card(cards, 'Trimble X7', self.trimble_status_var, 1)
+        self.add_status_card(cards, 'Scan Upload', self.upload_status_var, 2)
+        self.add_status_card(cards, 'Digital Twin', self.twin_status_var, 3)
+
+        feed_row = ttk.Frame(mission_tab)
+        feed_row.pack(fill='x', pady=(0, 14))
+        feed_card = ttk.Frame(feed_row, style='Card.TFrame', padding=14)
+        feed_card.pack(side='left', fill='both', expand=True, padx=(0, 10))
+        ttk.Label(feed_card, text='CAMERA FEED', style='CardTitle.TLabel').pack(anchor='w')
+        self.camera_label = ttk.Label(
+            feed_card,
+            text='Waiting for Jetson camera preview',
+            background='#071524',
+            foreground='#dbeafe',
+            anchor='center',
+        )
+        self.camera_label.pack(fill='both', expand=True, pady=(8, 0), ipady=96)
+        ttk.Label(
+            feed_card,
+            textvariable=self.camera_status_var,
+            style='Detail.TLabel',
+        ).pack(anchor='w', pady=(8, 0))
+
+        detections_card = ttk.Frame(feed_row, style='Card.TFrame', padding=14)
+        detections_card.pack(side='left', fill='both', expand=True)
+        ttk.Label(
+            detections_card,
+            text='AI DETECTIONS',
+            style='CardTitle.TLabel',
+        ).pack(anchor='w')
+        ttk.Label(
+            detections_card,
+            textvariable=self.detections_status_var,
+            style='CardValue.TLabel',
+        ).pack(anchor='w', pady=(8, 8))
+        self.detections_text = tk.Text(
+            detections_card,
+            height=10,
+            wrap='word',
+            bg='#f8fafc',
+            fg='#17212f',
+            relief='flat',
+            padx=10,
+            pady=8,
+            font=('Consolas', 9),
+        )
+        self.detections_text.pack(fill='both', expand=True)
+        self.detections_text.insert('end', 'Waiting for detection messages from ROS2...')
+        self.detections_text.configure(state='disabled')
+
+        actions = ttk.Frame(mission_tab)
+        actions.pack(fill='x', pady=(0, 14))
+        ttk.Button(
+            actions,
+            text='Start Mission',
+            command=self.start_system,
+            style='Primary.TButton',
+        ).pack(side='left', padx=(0, 8))
+        ttk.Button(
+            actions,
+            text='Stop + Download Twin',
+            command=self.stop_system,
+            style='Danger.TButton',
+        ).pack(side='left', padx=8)
+        ttk.Button(
+            actions,
+            text='Request Scan',
+            command=self.request_scan_button,
+            style='Tool.TButton',
+        ).pack(side='left', padx=8)
+        ttk.Button(
+            actions,
+            text='Transfer Latest Scan',
+            command=self.transfer_latest_scan,
+            style='Tool.TButton',
+        ).pack(side='left', padx=8)
+        ttk.Button(
+            actions,
+            text='Open Browser Dashboard',
+            command=self.open_dashboard,
+            style='Tool.TButton',
+        ).pack(side='left', padx=8)
+
+        ttk.Label(
+            mission_tab,
+            text='Mission Log',
+            style='Section.TLabel',
+        ).pack(anchor='w', pady=(4, 6))
+        self.log_text = tk.Text(
+            mission_tab,
+            height=18,
+            wrap='word',
+            bg='#071524',
+            fg='#dbeafe',
+            insertbackground='white',
+            relief='flat',
+            padx=12,
+            pady=10,
+            font=('Consolas', 10),
+        )
+        self.log_text.pack(fill='both', expand=True)
+
+        settings_top = ttk.Frame(settings_tab)
+        settings_top.pack(fill='x', pady=(0, 12))
+        ttk.Label(
+            settings_top,
+            text='Mission Configuration',
+            style='Section.TLabel',
+        ).pack(side='left')
+        ttk.Button(
+            settings_top,
+            text='Save Config',
+            command=self.save_config,
+            style='Primary.TButton',
+        ).pack(side='right')
+        ttk.Button(
+            settings_top,
+            text='Launch Perspective',
+            command=self.launch_perspective,
+            style='Tool.TButton',
+        ).pack(side='right', padx=(0, 8))
+
+        form_canvas = tk.Canvas(
+            settings_tab,
+            bg='#f4f7fb',
+            highlightthickness=0,
+        )
+        form_scroll = ttk.Scrollbar(
+            settings_tab,
+            orient='vertical',
+            command=form_canvas.yview,
+        )
+        form_canvas.configure(yscrollcommand=form_scroll.set)
+        form_canvas.pack(side='left', fill='both', expand=True)
+        form_scroll.pack(side='right', fill='y')
+        form = ttk.Frame(form_canvas)
+        form_window = form_canvas.create_window((0, 0), window=form, anchor='nw')
+        form.bind(
+            '<Configure>',
+            lambda event: form_canvas.configure(
+                scrollregion=form_canvas.bbox('all'),
+            ),
+        )
+        form_canvas.bind(
+            '<Configure>',
+            lambda event: form_canvas.itemconfigure(
+                form_window,
+                width=event.width,
+            ),
+        )
 
         self.add_entry(form, 'listen_host', 'Listen host')
         self.add_entry(form, 'windows_advertise_host', 'Windows IP for Jetson')
@@ -218,6 +705,7 @@ class TrimblePerspectiveBridgeApp:
             width=80,
         )
         self.add_path_entry(form, 'perspective_exe', 'Perspective EXE', file=True)
+        self.add_path_entry(form, 'logo_path', 'Agency/logo image', file=True)
         self.add_entry(
             form,
             'export_command',
@@ -247,36 +735,21 @@ class TrimblePerspectiveBridgeApp:
             'auto_scan_on_waypoint',
             'Request scan when Jetson reports waypoint arrival',
         )
-
-        buttons = ttk.Frame(outer)
-        buttons.pack(fill='x', pady=10)
-        ttk.Button(buttons, text='Start', command=self.start_system).pack(
-            side='left',
-            padx=(0, 6),
-        )
-        ttk.Button(buttons, text='Stop + Download Twin', command=self.stop_system).pack(
-            side='left',
-            padx=6,
-        )
-        ttk.Button(buttons, text='Save Config', command=self.save_config).pack(
-            side='left',
-            padx=6,
-        )
-        ttk.Button(buttons, text='Launch Perspective', command=self.launch_perspective).pack(
-            side='left',
-            padx=6,
-        )
-        ttk.Button(buttons, text='Request Scan Now', command=self.request_scan_button).pack(
-            side='left',
-            padx=6,
-        )
-        ttk.Button(buttons, text='Transfer Latest Scan', command=self.transfer_latest_scan).pack(
-            side='left',
-            padx=6,
+        self.add_check(
+            form,
+            'open_browser_on_start',
+            'Open browser dashboard on startup',
         )
 
-        self.log_text = tk.Text(outer, height=18, wrap='word')
-        self.log_text.pack(fill='both', expand=True)
+    def add_status_card(self, parent, title, variable, column):
+        card = ttk.Frame(parent, style='Card.TFrame', padding=14)
+        card.grid(row=0, column=column, sticky='nsew', padx=(0 if column == 0 else 8, 0))
+        parent.columnconfigure(column, weight=1)
+        ttk.Label(card, text=title.upper(), style='CardTitle.TLabel').pack(anchor='w')
+        ttk.Label(card, textvariable=variable, style='CardValue.TLabel').pack(
+            anchor='w',
+            pady=(8, 0),
+        )
 
     def add_entry(self, parent, key, label, width=50):
         row = ttk.Frame(parent)
@@ -320,6 +793,7 @@ class TrimblePerspectiveBridgeApp:
     def load_variables(self):
         for key, var in self.variables.items():
             var.set(self.config.get(key, self.DEFAULTS[key]))
+        self.update_logo()
 
     def read_variables(self):
         data = {}
@@ -338,6 +812,7 @@ class TrimblePerspectiveBridgeApp:
         try:
             self.config = self.read_variables()
             save_json(self.config_path, self.config)
+            self.update_logo()
             self.log(f'Saved config: {self.config_path}')
         except Exception as error:
             messagebox.showerror('Config Error', str(error))
@@ -357,6 +832,8 @@ class TrimblePerspectiveBridgeApp:
         self.status_var.set(f'Listening on http://{host}:{port}')
         self.set_state('Idle', f'Listening on http://{host}:{port}')
         self.log(f'HTTP server listening on {host}:{port}')
+        if self.config.get('open_browser_on_start', True):
+            webbrowser.open(f'http://127.0.0.1:{port}/')
 
     def watch_exports(self):
         while not self.stop_event.is_set():
@@ -384,6 +861,15 @@ class TrimblePerspectiveBridgeApp:
     def enqueue_process_status(self, payload):
         self.events.put(('process_status', payload))
 
+    def enqueue_camera_frame(self, payload):
+        self.events.put(('camera_frame', payload))
+
+    def enqueue_ui_start(self):
+        self.events.put(('ui_start', {}))
+
+    def enqueue_ui_stop(self):
+        self.events.put(('ui_stop', {}))
+
     def process_events(self):
         while True:
             try:
@@ -400,10 +886,17 @@ class TrimblePerspectiveBridgeApp:
                 self.handle_jetson_ready(payload)
             elif event == 'process_status':
                 self.handle_process_status(payload)
+            elif event == 'camera_frame':
+                self.handle_camera_frame(payload)
+            elif event == 'ui_start':
+                self.start_system()
+            elif event == 'ui_stop':
+                self.stop_system()
         self.root.after(250, self.process_events)
 
     def handle_jetson_ready(self, payload):
         self.jetson_ready = True
+        self.jetson_status_var.set('ROS2 online')
         self.set_state('Jetson Ready', 'ROS is running; requesting reference scan')
         self.log(f'Jetson ready: {json.dumps(payload)}')
 
@@ -425,9 +918,51 @@ class TrimblePerspectiveBridgeApp:
         self.pending_scan = True
         self.last_scan_request = payload
         reason = payload.get('reason') or payload.get('scan_type') or 'scan requested'
+        self.trimble_status_var.set('Scan requested')
         self.set_state('Scanning', reason)
         self.log(f'Scan requested: {reason}')
         self.request_scan()
+
+    def handle_camera_frame(self, payload):
+        self.latest_camera_payload = payload
+        timestamp = payload.get('stamp') or time.strftime('%H:%M:%S')
+        detections = payload.get('detections') or []
+        self.camera_status_var.set(f'Last frame: {timestamp}')
+        if detections:
+            self.detections_status_var.set(f'{len(detections)} detection(s)')
+        else:
+            self.detections_status_var.set('No detections in latest frame')
+
+        image_data = payload.get('image_png_base64')
+        if image_data and self.camera_label is not None:
+            try:
+                self.camera_image = tk.PhotoImage(data=image_data, format='png')
+                self.camera_label.configure(image=self.camera_image, text='')
+            except Exception as error:
+                self.camera_label.configure(
+                    image='',
+                    text=f'Could not render camera frame: {error}',
+                )
+
+        if self.detections_text is not None:
+            lines = []
+            for index, detection in enumerate(detections, start=1):
+                label = detection.get('class_id', 'unknown')
+                confidence = float(detection.get('confidence', 0.0))
+                x = float(detection.get('x', 0.0))
+                y = float(detection.get('y', 0.0))
+                width = float(detection.get('width', 0.0))
+                height = float(detection.get('height', 0.0))
+                lines.append(
+                    f'{index:02d}. class={label} conf={confidence:.2f} '
+                    f'box=({x:.0f},{y:.0f},{width:.0f}x{height:.0f})'
+                )
+            if not lines:
+                lines = ['No current AI detections.']
+            self.detections_text.configure(state='normal')
+            self.detections_text.delete('1.0', 'end')
+            self.detections_text.insert('end', '\n'.join(lines))
+            self.detections_text.configure(state='disabled')
 
     def request_scan_button(self):
         self.handle_scan_request({'scan_type': 'manual', 'reason': 'button'})
@@ -455,6 +990,7 @@ class TrimblePerspectiveBridgeApp:
         try:
             self.save_config()
             self.jetson_ready = False
+            self.jetson_status_var.set('Starting over SSH')
             self.set_state('Starting Jetson', 'Building and launching ROS over SSH')
             thread = threading.Thread(target=self.run_jetson_start, daemon=True)
             thread.start()
@@ -588,13 +1124,20 @@ class TrimblePerspectiveBridgeApp:
     def launch_perspective(self):
         exe = self.config.get('perspective_exe', '').strip()
         if not exe:
+            self.trimble_status_var.set('Perspective path not set')
             self.log('Perspective EXE is not configured')
             return
         try:
             subprocess.Popen([exe], shell=False)
+            self.trimble_status_var.set('Perspective launched')
             self.log(f'Launched Perspective: {exe}')
         except Exception as error:
+            self.trimble_status_var.set('Launch failed')
             self.log(f'Could not launch Perspective: {error}')
+
+    def open_dashboard(self):
+        port = int(self.config.get('listen_port', 8765))
+        webbrowser.open(f'http://127.0.0.1:{port}/')
 
     def transfer_latest_scan(self):
         scan = newest_scan(Path(self.config['export_dir']))
@@ -604,11 +1147,13 @@ class TrimblePerspectiveBridgeApp:
         self.transfer_scan(scan)
 
     def transfer_scan(self, scan):
+        self.trimble_status_var.set('Scan file found')
         self.set_state('Preparing Upload', f'Preparing {scan.name} for Jetson')
         transfer_source = scan
         if self.config.get('transfer_reduced_scan', True):
             transfer_source = self.create_reduced_scan(scan)
             if transfer_source is None:
+                self.upload_status_var.set('Upload skipped')
                 return
 
         self.set_state('Uploading Scan', f'Copying {transfer_source.name} to Jetson')
@@ -619,6 +1164,8 @@ class TrimblePerspectiveBridgeApp:
         self.last_transferred = scan
         self.pending_scan = False
         self.set_state('Scan Uploaded', f'{transfer_source.name} is ready on Jetson')
+        self.trimble_status_var.set('Scan exported')
+        self.upload_status_var.set('Uploaded to Jetson')
         self.log(f'Transferred {transfer_source.name} -> {destination}')
 
     def create_reduced_scan(self, scan):
@@ -681,6 +1228,7 @@ class TrimblePerspectiveBridgeApp:
             'last_scan_request': self.last_scan_request,
             'process_state': self.process_state,
             'process_detail': self.process_detail,
+            'recent_events': self.recent_events[-80:],
         }
 
     def set_state(self, state, detail=''):
@@ -689,9 +1237,55 @@ class TrimblePerspectiveBridgeApp:
         self.status_var.set(f'State: {state}')
         self.detail_var.set(detail)
 
+        state_lower = state.lower()
+        if any(token in state_lower for token in ('starting', 'jetson', 'navigating', 'waypoint')):
+            self.jetson_status_var.set(state)
+        if any(token in state_lower for token in ('scanning', 'trimble', 'perspective')):
+            self.trimble_status_var.set(state)
+        if any(token in state_lower for token in ('upload', 'preparing')):
+            self.upload_status_var.set(state)
+        if any(token in state_lower for token in ('twin', 'download', 'stopped')):
+            self.twin_status_var.set(state)
+
+        if state_lower == 'idle':
+            self.jetson_status_var.set('Not started')
+            self.trimble_status_var.set('Not verified')
+            self.upload_status_var.set('No active upload')
+            self.twin_status_var.set('No twin downloaded')
+
+    def update_logo(self):
+        if self.logo_label is None:
+            return
+        logo_path = Path(str(self.variables.get('logo_path', tk.StringVar()).get()))
+        if logo_path.is_file():
+            try:
+                self.logo_image = tk.PhotoImage(file=str(logo_path))
+                max_width = 220
+                max_height = 88
+                x_subsample = max(1, int(self.logo_image.width() / max_width))
+                y_subsample = max(1, int(self.logo_image.height() / max_height))
+                sample = max(x_subsample, y_subsample)
+                if sample > 1:
+                    self.logo_image = self.logo_image.subsample(sample, sample)
+                self.logo_label.configure(image=self.logo_image, text='')
+                return
+            except Exception as error:
+                self.log(f'Could not load logo image: {error}')
+
+        self.logo_image = None
+        self.logo_label.configure(
+            image='',
+            text='TxDOT\nInspection',
+            foreground='white',
+            font=('Segoe UI', 13, 'bold'),
+            justify='center',
+        )
+
     def log(self, message):
         timestamp = time.strftime('%H:%M:%S')
         line = f'[{timestamp}] {message}\n'
+        self.recent_events.append(f'[{timestamp}] {message}')
+        self.recent_events = self.recent_events[-120:]
         if self.log_text is None:
             print(line, end='')
             return

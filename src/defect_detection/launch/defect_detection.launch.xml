@@ -75,10 +75,36 @@
   <arg name="frontier_goal_topic" default="/digital_twin/frontier_goal"/>
   <arg name="waypoint_arrived_topic" default="/digital_twin/waypoint_arrived"/>
   <arg name="frontier_send_nav2_goals" default="false"/>
+  <arg name="frame_anchor" default="true"
+       description="Anchor the digital twin map frame to the robot world frame."/>
+  <arg name="robot_world_frame" default="odom"/>
+  <arg name="anchor_request_topic" default="/digital_twin/anchor_request"/>
+  <arg name="anchor_store_path" default="/tmp/digital_twin_anchor.yaml"/>
+  <arg name="auto_anchor_on_first_scan" default="true"/>
+  <arg name="infrastructure_planner" default="true"
+       description="Plan generic inspection/rescan station goals."/>
+  <arg name="infrastructure_goal_topic"
+       default="/infrastructure/inspection_goal"/>
+  <arg name="infrastructure_goal_cooldown_sec" default="20.0"/>
+  <arg name="robot_goal_bridge" default="false"
+       description="Send inspection goals to a robot backend."/>
+  <arg name="robot_goal_backend" default="dry_run"/>
+  <arg name="spot_command_url" default=""/>
+  <arg name="spot_ip" default=""/>
+  <arg name="spot_username" default=""/>
+  <arg name="spot_password" default=""/>
+  <arg name="spot_command_frame" default="odom"/>
+  <arg name="spot_goal_duration_sec" default="30.0"/>
+  <arg name="spot_arrival_timeout_sec" default="45.0"/>
+  <arg name="spot_auto_power_on" default="false"/>
+  <arg name="spot_stand_before_move" default="true"/>
   <arg name="trimble_windows_bridge" default="false"
        description="Notify the Windows Perspective bridge about scan requests and waypoint arrivals."/>
   <arg name="trimble_windows_url" default="http://127.0.0.1:8765"/>
   <arg name="trimble_reference_scan_on_start" default="true"/>
+  <arg name="trimble_camera_preview" default="true"/>
+  <arg name="trimble_camera_preview_rate_hz" default="2.0"/>
+  <arg name="trimble_camera_preview_width" default="640"/>
   <arg name="defect_map" default="false"
        description="Persist AI defect markers for the digital twin."/>
   <arg name="defect_map_store_path"
@@ -228,6 +254,60 @@
     <param name="send_nav2_goals" value="$(var frontier_send_nav2_goals)"/>
   </node>
 
+  <node if="$(var frame_anchor)"
+        pkg="defect_detection"
+        exec="frame_anchor_node"
+        name="digital_twin_frame_anchor"
+        output="screen">
+    <param name="map_frame" value="$(var navigation_target_frame)"/>
+    <param name="robot_world_frame" value="$(var robot_world_frame)"/>
+    <param name="base_frame" value="$(var navigation_base_frame)"/>
+    <param name="anchor_request_topic" value="$(var anchor_request_topic)"/>
+    <param name="scan_topic" value="$(var trimble_scan_topic)"/>
+    <param name="store_path" value="$(var anchor_store_path)"/>
+    <param name="auto_anchor_on_first_scan"
+           value="$(var auto_anchor_on_first_scan)"/>
+  </node>
+
+  <node if="$(var infrastructure_planner)"
+        pkg="defect_detection"
+        exec="infrastructure_planner"
+        name="infrastructure_inspection_planner"
+        output="screen">
+    <param name="enabled" value="true"/>
+    <param name="map_topic" value="$(var digital_twin_map_topic)"/>
+    <param name="rescan_goals_topic" value="$(var defect_rescan_goals_topic)"/>
+    <param name="goal_topic" value="$(var infrastructure_goal_topic)"/>
+    <param name="target_frame" value="$(var navigation_target_frame)"/>
+    <param name="base_frame" value="$(var navigation_base_frame)"/>
+    <param name="standoff_distance_m"
+           value="$(var navigation_standoff_distance)"/>
+    <param name="goal_cooldown_sec"
+           value="$(var infrastructure_goal_cooldown_sec)"/>
+  </node>
+
+  <node if="$(var robot_goal_bridge)"
+        pkg="defect_detection"
+        exec="robot_goal_bridge"
+        name="infrastructure_robot_goal_bridge"
+        output="screen">
+    <param name="goal_topic" value="$(var infrastructure_goal_topic)"/>
+    <param name="waypoint_arrived_topic" value="$(var waypoint_arrived_topic)"/>
+    <param name="backend" value="$(var robot_goal_backend)"/>
+    <param name="spot_command_url" value="$(var spot_command_url)"/>
+    <param name="spot_ip" value="$(var spot_ip)"/>
+    <param name="spot_username" value="$(var spot_username)"/>
+    <param name="spot_password" value="$(var spot_password)"/>
+    <param name="spot_command_frame" value="$(var spot_command_frame)"/>
+    <param name="spot_goal_duration_sec"
+           value="$(var spot_goal_duration_sec)"/>
+    <param name="spot_arrival_timeout_sec"
+           value="$(var spot_arrival_timeout_sec)"/>
+    <param name="spot_auto_power_on" value="$(var spot_auto_power_on)"/>
+    <param name="spot_stand_before_move"
+           value="$(var spot_stand_before_move)"/>
+  </node>
+
   <node if="$(var trimble_windows_bridge)"
         pkg="defect_detection"
         exec="trimble_windows_bridge"
@@ -238,6 +318,17 @@
     <param name="scan_reason_topic" value="$(var scan_reason_topic)"/>
     <param name="waypoint_arrived_topic" value="$(var waypoint_arrived_topic)"/>
     <param name="frontier_goal_topic" value="$(var frontier_goal_topic)"/>
+    <param name="inspection_goal_topic" value="$(var infrastructure_goal_topic)"/>
+    <param name="navigation_status_topic"
+           value="/infrastructure/navigation_status"/>
+    <param name="image_topic" value="$(var image_topic)"/>
+    <param name="detections_topic" value="$(var detections_2d_topic)"/>
+    <param name="camera_preview_enabled"
+           value="$(var trimble_camera_preview)"/>
+    <param name="camera_preview_rate_hz"
+           value="$(var trimble_camera_preview_rate_hz)"/>
+    <param name="camera_preview_width"
+           value="$(var trimble_camera_preview_width)"/>
     <param name="request_reference_scan_on_start"
            value="$(var trimble_reference_scan_on_start)"/>
   </node>

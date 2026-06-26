@@ -1,3 +1,4 @@
+import base64
 import json
 import time
 from urllib import error as urlerror
@@ -6,7 +7,17 @@ from urllib import request as urlrequest
 from geometry_msgs.msg import PoseStamped
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
+from sensor_msgs.msg import Image
 from std_msgs.msg import Bool, String
+from vision_msgs.msg import Detection2DArray
+
+try:
+    import cv2
+    from cv_bridge import CvBridge
+except ImportError:
+    cv2 = None
+    CvBridge = None
 
 
 def post_json(url, payload, timeout_sec):
@@ -31,6 +42,19 @@ class TrimbleWindowsBridge(Node):
         self.declare_parameter('scan_reason_topic', '/digital_twin/scan_reason')
         self.declare_parameter('waypoint_arrived_topic', '/digital_twin/waypoint_arrived')
         self.declare_parameter('frontier_goal_topic', '/digital_twin/frontier_goal')
+        self.declare_parameter(
+            'inspection_goal_topic',
+            '/infrastructure/inspection_goal',
+        )
+        self.declare_parameter(
+            'navigation_status_topic',
+            '/infrastructure/navigation_status',
+        )
+        self.declare_parameter('image_topic', '/ros2_image')
+        self.declare_parameter('detections_topic', '/detections_2d')
+        self.declare_parameter('camera_preview_enabled', True)
+        self.declare_parameter('camera_preview_rate_hz', 2.0)
+        self.declare_parameter('camera_preview_width', 640)
         self.declare_parameter('request_reference_scan_on_start', True)
         self.declare_parameter('http_timeout_sec', 3.0)
         self.declare_parameter('request_cooldown_sec', 10.0)
@@ -50,6 +74,27 @@ class TrimbleWindowsBridge(Node):
         frontier_goal_topic = self.get_parameter(
             'frontier_goal_topic'
         ).get_parameter_value().string_value
+        inspection_goal_topic = self.get_parameter(
+            'inspection_goal_topic'
+        ).get_parameter_value().string_value
+        navigation_status_topic = self.get_parameter(
+            'navigation_status_topic'
+        ).get_parameter_value().string_value
+        image_topic = self.get_parameter(
+            'image_topic'
+        ).get_parameter_value().string_value
+        detections_topic = self.get_parameter(
+            'detections_topic'
+        ).get_parameter_value().string_value
+        self.camera_preview_enabled = self.get_parameter(
+            'camera_preview_enabled'
+        ).get_parameter_value().bool_value
+        self.camera_preview_rate_hz = self.get_parameter(
+            'camera_preview_rate_hz'
+        ).get_parameter_value().double_value
+        self.camera_preview_width = self.get_parameter(
+            'camera_preview_width'
+        ).get_parameter_value().integer_value
         self.request_reference_scan_on_start = self.get_parameter(
             'request_reference_scan_on_start'
         ).get_parameter_value().bool_value
@@ -63,8 +108,11 @@ class TrimbleWindowsBridge(Node):
         self.last_reason = ''
         self.last_scan_request_time = None
         self.last_frontier_goal = None
+        self.last_detections = []
+        self.last_camera_preview_time = 0.0
         self.reference_requested = False
         self.suppress_next_scan_required = False
+        self.cv_bridge = CvBridge() if CvBridge is not None else None
 
         self.scan_request_publisher = self.create_publisher(
             Bool,
@@ -96,8 +144,36 @@ class TrimbleWindowsBridge(Node):
             self.frontier_goal_callback,
             10,
         )
+        self.inspection_goal_subscription = self.create_subscription(
+            PoseStamped,
+            inspection_goal_topic,
+            self.inspection_goal_callback,
+            10,
+        )
+        self.navigation_status_subscription = self.create_subscription(
+            String,
+            navigation_status_topic,
+            self.navigation_status_callback,
+            10,
+        )
+        self.detections_subscription = self.create_subscription(
+            Detection2DArray,
+            detections_topic,
+            self.detections_callback,
+            qos_profile_sensor_data,
+        )
+        self.image_subscription = self.create_subscription(
+            Image,
+            image_topic,
+            self.image_callback,
+            qos_profile_sensor_data,
+        )
         self.timer = self.create_timer(1.0, self.startup_tick)
         self.get_logger().info(f'Windows Trimble bridge targeting {self.windows_url}')
+        if self.camera_preview_enabled and self.cv_bridge is None:
+            self.get_logger().warning(
+                'Camera preview disabled: cv_bridge/OpenCV import failed'
+            )
         self.post(
             '/jetson_ready',
             {
@@ -154,6 +230,25 @@ class TrimbleWindowsBridge(Node):
             ),
         )
 
+    def inspection_goal_callback(self, goal):
+        self.last_frontier_goal = {
+            'frame_id': goal.header.frame_id,
+            'x': goal.pose.position.x,
+            'y': goal.pose.position.y,
+            'z': goal.pose.position.z,
+        }
+        self.post_status(
+            'Navigating',
+            (
+                'Infrastructure inspection goal: '
+                f'x={goal.pose.position.x:.2f}, '
+                f'y={goal.pose.position.y:.2f}'
+            ),
+        )
+
+    def navigation_status_callback(self, message):
+        self.post_status('Navigating', message.data)
+
     def waypoint_arrived_callback(self, message):
         payload = {
             'reason': message.data,
@@ -162,6 +257,89 @@ class TrimbleWindowsBridge(Node):
         self.post_status('Waypoint Arrived', message.data)
         self.open_scan_watcher_gate()
         self.post('/waypoint_arrived', payload)
+
+    def detections_callback(self, message):
+        detections = []
+        for detection in message.detections:
+            confidence = 0.0
+            class_id = 'unknown'
+            if detection.results:
+                hypothesis = detection.results[0].hypothesis
+                confidence = float(hypothesis.score)
+                class_id = hypothesis.class_id or 'unknown'
+            detections.append(
+                {
+                    'class_id': class_id,
+                    'confidence': confidence,
+                    'x': float(detection.bbox.center.position.x),
+                    'y': float(detection.bbox.center.position.y),
+                    'width': float(detection.bbox.size_x),
+                    'height': float(detection.bbox.size_y),
+                }
+            )
+        self.last_detections = detections
+
+    def image_callback(self, message):
+        if not self.camera_preview_enabled or self.cv_bridge is None or cv2 is None:
+            return
+        now = time.monotonic()
+        min_period = 1.0 / max(0.1, self.camera_preview_rate_hz)
+        if now - self.last_camera_preview_time < min_period:
+            return
+        self.last_camera_preview_time = now
+
+        try:
+            frame = self.cv_bridge.imgmsg_to_cv2(message, desired_encoding='bgr8')
+            preview, scale = self.make_preview(frame)
+            for detection in self.last_detections:
+                self.draw_detection(preview, detection, scale)
+            ok, encoded = cv2.imencode('.png', preview)
+            if not ok:
+                return
+            payload = {
+                'stamp': f'{message.header.stamp.sec}.{message.header.stamp.nanosec:09d}',
+                'frame_id': message.header.frame_id,
+                'detections': self.last_detections,
+                'image_png_base64': base64.b64encode(encoded.tobytes()).decode('ascii'),
+            }
+            self.post('/camera_frame', payload)
+        except Exception as error:
+            self.get_logger().warning(f'Camera preview failed: {error}')
+
+    def make_preview(self, frame):
+        height, width = frame.shape[:2]
+        target_width = max(160, int(self.camera_preview_width))
+        if width <= target_width:
+            return frame.copy(), 1.0
+        scale = target_width / float(width)
+        target_height = max(1, int(height * scale))
+        resized = cv2.resize(frame, (target_width, target_height))
+        return resized, scale
+
+    def draw_detection(self, frame, detection, scale):
+        cx = float(detection['x']) * scale
+        cy = float(detection['y']) * scale
+        width = float(detection['width']) * scale
+        height = float(detection['height']) * scale
+        x1 = int(max(0, cx - width / 2.0))
+        y1 = int(max(0, cy - height / 2.0))
+        x2 = int(min(frame.shape[1] - 1, cx + width / 2.0))
+        y2 = int(min(frame.shape[0] - 1, cy + height / 2.0))
+        label = (
+            f'{detection["class_id"]} '
+            f'{float(detection["confidence"]):.2f}'
+        )
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 20, 220), 2)
+        cv2.putText(
+            frame,
+            label,
+            (x1, max(16, y1 - 6)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (0, 20, 220),
+            2,
+            cv2.LINE_AA,
+        )
 
     def open_scan_watcher_gate(self):
         self.suppress_next_scan_required = True

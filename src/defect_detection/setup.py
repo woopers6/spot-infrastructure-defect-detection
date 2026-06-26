@@ -58,6 +58,12 @@ setup(
             'defect_detection.digital_twin.scan_decision_node:main',
             'trimble_windows_bridge = '
             'defect_detection.digital_twin.trimble_windows_bridge:main',
+            'frame_anchor_node = '
+            'defect_detection.digital_twin.frame_anchor_node:main',
+            'infrastructure_planner = '
+            'defect_detection.digital_twin.infrastructure_planner:main',
+            'robot_goal_bridge = '
+            'defect_detection.digital_twin.robot_goal_bridge:main',
         ],
     },
 )

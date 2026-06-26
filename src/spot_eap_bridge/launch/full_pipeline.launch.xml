@@ -63,9 +63,32 @@
   <arg name="frontier_goal_topic" default="/digital_twin/frontier_goal"/>
   <arg name="waypoint_arrived_topic" default="/digital_twin/waypoint_arrived"/>
   <arg name="frontier_send_nav2_goals" default="false"/>
+  <arg name="frame_anchor" default="true"/>
+  <arg name="robot_world_frame" default="odom"/>
+  <arg name="anchor_request_topic" default="/digital_twin/anchor_request"/>
+  <arg name="anchor_store_path" default="/tmp/digital_twin_anchor.yaml"/>
+  <arg name="auto_anchor_on_first_scan" default="true"/>
+  <arg name="infrastructure_planner" default="true"/>
+  <arg name="infrastructure_goal_topic"
+       default="/infrastructure/inspection_goal"/>
+  <arg name="infrastructure_goal_cooldown_sec" default="20.0"/>
+  <arg name="robot_goal_bridge" default="false"/>
+  <arg name="robot_goal_backend" default="dry_run"/>
+  <arg name="spot_command_url" default=""/>
+  <arg name="spot_ip" default=""/>
+  <arg name="spot_username" default=""/>
+  <arg name="spot_password" default=""/>
+  <arg name="spot_command_frame" default="odom"/>
+  <arg name="spot_goal_duration_sec" default="30.0"/>
+  <arg name="spot_arrival_timeout_sec" default="45.0"/>
+  <arg name="spot_auto_power_on" default="false"/>
+  <arg name="spot_stand_before_move" default="true"/>
   <arg name="trimble_windows_bridge" default="false"/>
   <arg name="trimble_windows_url" default="http://127.0.0.1:8765"/>
   <arg name="trimble_reference_scan_on_start" default="true"/>
+  <arg name="trimble_camera_preview" default="true"/>
+  <arg name="trimble_camera_preview_rate_hz" default="2.0"/>
+  <arg name="trimble_camera_preview_width" default="640"/>
   <arg name="defect_map" default="false"/>
   <arg name="defect_map_store_path"
        default="/tmp/digital_twin_defects.yaml"/>
@@ -157,11 +180,43 @@
     <arg name="waypoint_arrived_topic" value="$(var waypoint_arrived_topic)"/>
     <arg name="frontier_send_nav2_goals"
          value="$(var frontier_send_nav2_goals)"/>
+    <arg name="frame_anchor" value="$(var frame_anchor)"/>
+    <arg name="robot_world_frame" value="$(var robot_world_frame)"/>
+    <arg name="anchor_request_topic" value="$(var anchor_request_topic)"/>
+    <arg name="anchor_store_path" value="$(var anchor_store_path)"/>
+    <arg name="auto_anchor_on_first_scan"
+         value="$(var auto_anchor_on_first_scan)"/>
+    <arg name="infrastructure_planner"
+         value="$(var infrastructure_planner)"/>
+    <arg name="infrastructure_goal_topic"
+         value="$(var infrastructure_goal_topic)"/>
+    <arg name="infrastructure_goal_cooldown_sec"
+         value="$(var infrastructure_goal_cooldown_sec)"/>
+    <arg name="robot_goal_bridge" value="$(var robot_goal_bridge)"/>
+    <arg name="robot_goal_backend" value="$(var robot_goal_backend)"/>
+    <arg name="spot_command_url" value="$(var spot_command_url)"/>
+    <arg name="spot_ip" value="$(var spot_ip)"/>
+    <arg name="spot_username" value="$(var spot_username)"/>
+    <arg name="spot_password" value="$(var spot_password)"/>
+    <arg name="spot_command_frame" value="$(var spot_command_frame)"/>
+    <arg name="spot_goal_duration_sec"
+         value="$(var spot_goal_duration_sec)"/>
+    <arg name="spot_arrival_timeout_sec"
+         value="$(var spot_arrival_timeout_sec)"/>
+    <arg name="spot_auto_power_on" value="$(var spot_auto_power_on)"/>
+    <arg name="spot_stand_before_move"
+         value="$(var spot_stand_before_move)"/>
     <arg name="trimble_windows_bridge"
          value="$(var trimble_windows_bridge)"/>
     <arg name="trimble_windows_url" value="$(var trimble_windows_url)"/>
     <arg name="trimble_reference_scan_on_start"
          value="$(var trimble_reference_scan_on_start)"/>
+    <arg name="trimble_camera_preview"
+         value="$(var trimble_camera_preview)"/>
+    <arg name="trimble_camera_preview_rate_hz"
+         value="$(var trimble_camera_preview_rate_hz)"/>
+    <arg name="trimble_camera_preview_width"
+         value="$(var trimble_camera_preview_width)"/>
     <arg name="defect_map" value="$(var defect_map)"/>
     <arg name="defect_map_store_path"
          value="$(var defect_map_store_path)"/>

@@ -1,7 +1,8 @@
 # Infrastructure Defect Detection
 
 ROS 2 workspace for USB-camera defect detection, generic point-cloud fusion,
-Trimble X7 scan ingestion, digital-twin markers, and Nav2 reinspection goals.
+Trimble X7 scan ingestion, digital-twin markers, infrastructure inspection
+planning, and optional robot navigation backends.
 
 ## Pipeline
 
@@ -20,7 +21,10 @@ Trimble X7 LAS/LAZ folder -> /trimble/x7/scan_points
                 /digital_twin/map + /digital_twin/defect_markers
                                       |
                                       v
-                       frontier/rescan goals for Nav2
+              frame anchor + infrastructure inspection goals
+                                      |
+                                      v
+                   dry-run, Nav2, or external Spot command bridge
 ```
 
 Generic live or simulated point clouds can still be bridged:
@@ -105,17 +109,64 @@ ros2 launch pointcloud_bridge full_pipeline.launch.xml \
   trimble_reference_scan_on_start:=true
 ```
 
-## Digital Twin And Nav2
+## Digital Twin And Robot Motion
 
 The X7 scan watcher publishes `/trimble/x7/scan_points`. The occupancy builder
-turns that into `/digital_twin/map`. The frontier planner finds reachable
-known/unknown edges and publishes `/digital_twin/frontier_goal`; it only sends
-Nav2 goals when `frontier_send_nav2_goals:=true`.
+turns that into `/digital_twin/map`.
+
+The frame anchor node records the robot pose when the reference scan arrives and
+publishes the transform from the digital-twin `map` frame to the robot world
+frame. This is the coordinate glue that lets defect markers and scan stations be
+converted into robot-relative goals. It persists:
+
+- `/tmp/digital_twin_anchor.yaml`
 
 The defect map node persists AI markers to YAML and republishes them as:
 
 - `/digital_twin/defect_markers`
 - `/digital_twin/rescan_goals`
+
+The infrastructure planner prefers defect rescan goals first, then falls back to
+map-frontier exploration goals. It publishes:
+
+- `/infrastructure/inspection_goal`
+- `/infrastructure/planner_status`
+
+The robot goal bridge subscribes to `/infrastructure/inspection_goal`. It is off
+by default so the stack can propose goals without moving hardware. Enable one of
+these backends when the field command path is ready:
+
+```text
+ROBOT_GOAL_BRIDGE=true
+ROBOT_GOAL_BACKEND=dry_run  # no motion, publishes arrival for software tests
+ROBOT_GOAL_BACKEND=nav2     # send NavigateToPose goals
+ROBOT_GOAL_BACKEND=http     # POST goals to an external Spot SDK command service
+ROBOT_GOAL_BACKEND=spot_sdk # command Spot directly with the Boston Dynamics SDK
+```
+
+For Spot, the intended first hardware path is to use Spot-native localization and
+mobility for walking, while this ROS stack handles inspection goals, scan
+coordination, AI markers, and digital-twin updates.
+
+Direct Spot SDK control requires the Jetson to reach Spot on the mission LAN and
+the Boston Dynamics Python SDK to be installed from `requirements-field.txt`.
+Configure:
+
+```text
+ROBOT_GOAL_BRIDGE=true
+ROBOT_GOAL_BACKEND=spot_sdk
+SPOT_IP=192.168.80.3
+SPOT_USERNAME=...
+SPOT_PASSWORD=...
+SPOT_COMMAND_FRAME=odom
+SPOT_AUTO_POWER_ON=false
+SPOT_STAND_BEFORE_MOVE=true
+```
+
+Leave `SPOT_AUTO_POWER_ON=false` unless the tablet/operator workflow explicitly
+allows the payload to power motors. The backend acquires a lease, optionally
+commands stand, sends an SE2 trajectory goal, and publishes waypoint arrival
+when the SDK trajectory command completes.
 
 ## Windows Perspective Bridge
 
@@ -139,7 +190,7 @@ Recommended Wi-Fi starting point:
 
 ```text
 Jetson max points: 500000
-Remote twin paths: /tmp/digital_twin_defects.yaml
+Remote twin paths: /tmp/digital_twin_defects.yaml;/tmp/digital_twin_anchor.yaml
 ```
 
 ## Tests
