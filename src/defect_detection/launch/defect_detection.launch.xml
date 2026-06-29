@@ -27,6 +27,19 @@
        description="Run 2D detection and point-cloud fusion."/>
   <arg name="calibration_path"
        default="$(find-pkg-share defect_detection)/config/site_calibration.yaml"/>
+  <arg name="oak_depth_navigation" default="false"
+       description="Use OAK-D Pro RGB-D depth to turn 2D detections into navigation-ready 3D detections."/>
+  <arg name="oak_depth_topic" default="/oak/rgb/depth"/>
+  <arg name="oak_camera_info_topic" default="/oak/rgb/camera_info"/>
+  <arg name="oak_depth_minimum_confidence" default="0.50"/>
+  <arg name="oak_depth_bbox_padding_px" default="4"/>
+  <arg name="oak_depth_default_bbox_size_m" default="0.20"/>
+  <arg name="oak_localization" default="false"
+       description="Use OAK visual odometry/VSLAM as the robot localization source."/>
+  <arg name="oak_odom_topic" default="/oak/odom"/>
+  <arg name="oak_odom_frame" default="oak_odom"/>
+  <arg name="oak_odom_base_frame" default="base_link"/>
+  <arg name="oak_odom_use_message_frame_ids" default="true"/>
   <arg name="visualization" default="true"
        description="Republish the cloud and convert 3D detections to RViz markers."/>
   <arg name="rviz" default="false"
@@ -98,6 +111,11 @@
   <arg name="spot_arrival_timeout_sec" default="45.0"/>
   <arg name="spot_auto_power_on" default="false"/>
   <arg name="spot_stand_before_move" default="true"/>
+  <arg name="arrival_check_source" default="tf"/>
+  <arg name="arrival_base_frame" default="body"/>
+  <arg name="arrival_position_tolerance_m" default="0.35"/>
+  <arg name="arrival_yaw_tolerance_rad" default="0.45"/>
+  <arg name="arrival_stable_sec" default="1.5"/>
   <arg name="trimble_windows_bridge" default="false"
        description="Notify the Windows Perspective bridge about scan requests and waypoint arrivals."/>
   <arg name="trimble_windows_url" default="http://127.0.0.1:8765"/>
@@ -161,6 +179,36 @@
     <param name="detections_3d_topic" value="$(var detections_3d_topic)"/>
     <param name="sync_queue_size" value="$(var sync_queue_size)"/>
     <param name="sync_slop_sec" value="$(var sync_slop_sec)"/>
+  </node>
+
+  <node if="$(var oak_depth_navigation)"
+        pkg="defect_detection"
+        exec="oak_depth_fusion_node"
+        name="oak_depth_detection_fusion"
+        output="screen">
+    <param name="detections_2d_topic" value="$(var detections_2d_topic)"/>
+    <param name="depth_topic" value="$(var oak_depth_topic)"/>
+    <param name="camera_info_topic" value="$(var oak_camera_info_topic)"/>
+    <param name="detections_3d_topic" value="$(var detections_3d_topic)"/>
+    <param name="minimum_confidence"
+           value="$(var oak_depth_minimum_confidence)"/>
+    <param name="bbox_padding_px" value="$(var oak_depth_bbox_padding_px)"/>
+    <param name="default_bbox_size_m"
+           value="$(var oak_depth_default_bbox_size_m)"/>
+    <param name="sync_queue_size" value="$(var sync_queue_size)"/>
+    <param name="sync_slop_sec" value="$(var sync_slop_sec)"/>
+  </node>
+
+  <node if="$(var oak_localization)"
+        pkg="defect_detection"
+        exec="oak_localization_bridge"
+        name="oak_localization_bridge"
+        output="screen">
+    <param name="odom_topic" value="$(var oak_odom_topic)"/>
+    <param name="odom_frame" value="$(var oak_odom_frame)"/>
+    <param name="base_frame" value="$(var oak_odom_base_frame)"/>
+    <param name="use_message_frame_ids"
+           value="$(var oak_odom_use_message_frame_ids)"/>
   </node>
 
   <node if="$(var visualization)"
@@ -306,6 +354,13 @@
     <param name="spot_auto_power_on" value="$(var spot_auto_power_on)"/>
     <param name="spot_stand_before_move"
            value="$(var spot_stand_before_move)"/>
+    <param name="arrival_check_source" value="$(var arrival_check_source)"/>
+    <param name="arrival_base_frame" value="$(var arrival_base_frame)"/>
+    <param name="arrival_position_tolerance_m"
+           value="$(var arrival_position_tolerance_m)"/>
+    <param name="arrival_yaw_tolerance_rad"
+           value="$(var arrival_yaw_tolerance_rad)"/>
+    <param name="arrival_stable_sec" value="$(var arrival_stable_sec)"/>
   </node>
 
   <node if="$(var trimble_windows_bridge)"

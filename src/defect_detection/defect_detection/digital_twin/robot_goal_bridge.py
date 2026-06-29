@@ -48,6 +48,12 @@ class RobotGoalBridge(Node):
         self.declare_parameter('spot_auto_power_on', False)
         self.declare_parameter('spot_stand_before_move', True)
         self.declare_parameter('spot_auto_return_lease', True)
+        self.declare_parameter('arrival_check_source', 'tf')
+        self.declare_parameter('arrival_base_frame', 'body')
+        self.declare_parameter('arrival_position_tolerance_m', 0.35)
+        self.declare_parameter('arrival_yaw_tolerance_rad', 0.45)
+        self.declare_parameter('arrival_stable_sec', 1.5)
+        self.declare_parameter('arrival_check_period_sec', 0.25)
         self.declare_parameter('http_timeout_sec', 3.0)
         self.declare_parameter('dry_run_arrival_delay_sec', 3.0)
 
@@ -96,6 +102,24 @@ class RobotGoalBridge(Node):
         self.spot_auto_return_lease = self.get_parameter(
             'spot_auto_return_lease'
         ).get_parameter_value().bool_value
+        self.arrival_check_source = self.get_parameter(
+            'arrival_check_source'
+        ).get_parameter_value().string_value
+        self.arrival_base_frame = self.get_parameter(
+            'arrival_base_frame'
+        ).get_parameter_value().string_value
+        self.arrival_position_tolerance = self.get_parameter(
+            'arrival_position_tolerance_m'
+        ).get_parameter_value().double_value
+        self.arrival_yaw_tolerance = self.get_parameter(
+            'arrival_yaw_tolerance_rad'
+        ).get_parameter_value().double_value
+        self.arrival_stable_sec = self.get_parameter(
+            'arrival_stable_sec'
+        ).get_parameter_value().double_value
+        self.arrival_check_period = self.get_parameter(
+            'arrival_check_period_sec'
+        ).get_parameter_value().double_value
         self.http_timeout = self.get_parameter(
             'http_timeout_sec'
         ).get_parameter_value().double_value
@@ -119,6 +143,9 @@ class RobotGoalBridge(Node):
         self.tf_listener = TransformListener(self.tf_buffer, self)
         self.navigation_client = ActionClient(self, NavigateToPose, navigate_action)
         self.active_goal = None
+        self.active_goal_started_sec = None
+        self.arrival_stable_since = None
+        self.arrival_timer = None
         self.dry_run_timer = None
         self.spot = None
         self.spot_command_client = None
@@ -134,6 +161,8 @@ class RobotGoalBridge(Node):
             return
 
         self.active_goal = goal
+        self.active_goal_started_sec = time.monotonic()
+        self.arrival_stable_since = None
         self.publish_status(
             f'goal received: {goal.header.frame_id} '
             f'x={goal.pose.position.x:.2f}, y={goal.pose.position.y:.2f}'
@@ -176,7 +205,9 @@ class RobotGoalBridge(Node):
     def nav2_result(self, future):
         try:
             wrapped = future.result()
-            self.finish_goal(f'nav2 completed with status {wrapped.status}')
+            self.confirm_arrival_or_finish(
+                f'nav2 completed with status {wrapped.status}'
+            )
         except Exception as error:
             self.finish_goal(f'nav2 failed: {error}', arrived=False)
 
@@ -204,7 +235,9 @@ class RobotGoalBridge(Node):
                 payload,
                 self.http_timeout,
             )
-            self.finish_goal(f'spot http command accepted: {status} {body}')
+            self.confirm_arrival_or_finish(
+                f'spot http command accepted: {status} {body}'
+            )
         except (OSError, urlerror.URLError, TimeoutError) as error:
             self.finish_goal(f'spot http command failed: {error}', arrived=False)
 
@@ -329,7 +362,7 @@ class RobotGoalBridge(Node):
 
         if block_for_trajectory_cmd is None:
             time.sleep(min(self.spot_goal_duration, self.spot_arrival_timeout))
-            self.finish_goal('spot sdk command duration elapsed')
+            self.confirm_arrival_or_finish('spot sdk command duration elapsed')
             return
 
         result = block_for_trajectory_cmd(
@@ -338,7 +371,7 @@ class RobotGoalBridge(Node):
             timeout_sec=self.spot_arrival_timeout,
             logger=self.get_logger(),
         )
-        self.finish_goal(f'spot sdk trajectory completed: {result}')
+        self.confirm_arrival_or_finish(f'spot sdk trajectory completed: {result}')
 
     def dry_run_arrived(self):
         if self.active_goal is None:
@@ -346,7 +379,84 @@ class RobotGoalBridge(Node):
         if self.dry_run_timer is not None:
             self.dry_run_timer.cancel()
             self.dry_run_timer = None
-        self.finish_goal('dry-run waypoint arrived')
+        self.confirm_arrival_or_finish('dry-run command elapsed')
+
+    def confirm_arrival_or_finish(self, detail):
+        if self.arrival_check_source != 'tf':
+            self.finish_goal(detail)
+            return
+        self.publish_status(f'{detail}; verifying arrival with TF')
+        if self.arrival_timer is not None:
+            self.arrival_timer.cancel()
+        self.arrival_timer = self.create_timer(
+            max(0.05, self.arrival_check_period),
+            self.arrival_check_tick,
+        )
+
+    def arrival_check_tick(self):
+        if self.active_goal is None:
+            self.cancel_arrival_timer()
+            return
+
+        if (
+            self.active_goal_started_sec is not None
+            and time.monotonic() - self.active_goal_started_sec
+            > self.spot_arrival_timeout
+        ):
+            self.cancel_arrival_timer()
+            self.finish_goal('arrival TF check timed out', arrived=False)
+            return
+
+        error = self.arrival_error(self.active_goal)
+        if error is None:
+            self.arrival_stable_since = None
+            return
+        distance_error, yaw_error = error
+        self.publish_status(
+            'arrival check: '
+            f'distance={distance_error:.2f}m, yaw={yaw_error:.2f}rad'
+        )
+        if (
+            distance_error <= self.arrival_position_tolerance
+            and yaw_error <= self.arrival_yaw_tolerance
+        ):
+            if self.arrival_stable_since is None:
+                self.arrival_stable_since = time.monotonic()
+            if time.monotonic() - self.arrival_stable_since >= self.arrival_stable_sec:
+                self.cancel_arrival_timer()
+                self.finish_goal(
+                    'arrival verified by OAK/TF '
+                    f'(distance={distance_error:.2f}m, yaw={yaw_error:.2f}rad)'
+                )
+            return
+
+        self.arrival_stable_since = None
+
+    def arrival_error(self, goal):
+        try:
+            transform = self.tf_buffer.lookup_transform(
+                goal.header.frame_id,
+                self.arrival_base_frame,
+                rclpy.time.Time(),
+                timeout=Duration(seconds=0.25),
+            )
+        except TransformException as error:
+            self.publish_status(f'waiting for arrival TF: {error}')
+            return None
+
+        position = transform.transform.translation
+        dx = goal.pose.position.x - position.x
+        dy = goal.pose.position.y - position.y
+        distance_error = math.hypot(dx, dy)
+        current_yaw = yaw_from_quaternion(transform.transform.rotation)
+        goal_yaw = yaw_from_quaternion(goal.pose.orientation)
+        yaw_error = abs(normalize_angle(goal_yaw - current_yaw))
+        return distance_error, yaw_error
+
+    def cancel_arrival_timer(self):
+        if self.arrival_timer is not None:
+            self.arrival_timer.cancel()
+            self.arrival_timer = None
 
     def finish_goal(self, detail, arrived=True):
         self.publish_status(detail)
@@ -355,6 +465,8 @@ class RobotGoalBridge(Node):
             message.data = detail
             self.arrival_publisher.publish(message)
         self.active_goal = None
+        self.active_goal_started_sec = None
+        self.arrival_stable_since = None
 
     def publish_status(self, message):
         status = String()
@@ -377,6 +489,14 @@ def yaw_from_quaternion(rotation):
     siny_cosp = 2.0 * (w * z + x * y)
     cosy_cosp = 1.0 - 2.0 * (y * y + z * z)
     return math.atan2(siny_cosp, cosy_cosp)
+
+
+def normalize_angle(angle):
+    while angle > math.pi:
+        angle -= 2.0 * math.pi
+    while angle < -math.pi:
+        angle += 2.0 * math.pi
+    return angle
 
 
 def main(args=None):

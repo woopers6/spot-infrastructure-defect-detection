@@ -38,27 +38,45 @@ cd "${WORKSPACE_ROOT}"
 "${WORKSPACE_ROOT}/scripts/field_preflight.sh" "${MODE}"
 
 detector=false
-fusion=false
+fusion="${FUSION:-false}"
 if [[ "${MODE}" == "full" ]]; then
   detector=true
-  fusion=true
+  if [[ "${OAK_DEPTH_NAVIGATION:-false}" != "true" ]]; then
+    fusion=true
+  fi
 fi
 
 exec ros2 launch pointcloud_bridge full_pipeline.launch.xml \
   lidar_input_topic:="${LIDAR_INPUT_TOPIC:-/lidar/raw}" \
   pointcloud_topic:="${POINTCLOUD_TOPIC:-/lidar/points}" \
+  publish_camera:="${PUBLISH_CAMERA:-false}" \
   camera_index:="${CAMERA_INDEX:-0}" \
   camera_frame:="${CAMERA_FRAME:-camera_optical_frame}" \
   lidar_frame:="${LIDAR_FRAME:-lidar}" \
   dataset_path:="${DATASET_PATH:-}" \
   model_path:="${MODEL_PATH:-}" \
+  image_topic:="${IMAGE_TOPIC:-/ros2_image}" \
+  detections_2d_topic:="${DETECTIONS_2D_TOPIC:-/detections_2d}" \
+  detections_3d_topic:="${DETECTIONS_3D_TOPIC:-/detections_3d}" \
   calibration_path:="${CALIBRATION_PATH:-}" \
   detector:="${detector}" \
   fusion:="${fusion}" \
+  oak_depth_navigation:="${OAK_DEPTH_NAVIGATION:-false}" \
+  oak_depth_topic:="${OAK_DEPTH_TOPIC:-/oak/rgb/depth}" \
+  oak_camera_info_topic:="${OAK_CAMERA_INFO_TOPIC:-/oak/rgb/camera_info}" \
+  oak_depth_minimum_confidence:="${OAK_DEPTH_MINIMUM_CONFIDENCE:-0.50}" \
+  oak_depth_bbox_padding_px:="${OAK_DEPTH_BBOX_PADDING_PX:-4}" \
+  oak_depth_default_bbox_size_m:="${OAK_DEPTH_DEFAULT_BBOX_SIZE_M:-0.20}" \
+  oak_localization:="${OAK_LOCALIZATION:-false}" \
+  oak_odom_topic:="${OAK_ODOM_TOPIC:-/oak/odom}" \
+  oak_odom_frame:="${OAK_ODOM_FRAME:-oak_odom}" \
+  oak_odom_base_frame:="${OAK_ODOM_BASE_FRAME:-base_link}" \
+  oak_odom_use_message_frame_ids:="${OAK_ODOM_USE_MESSAGE_FRAME_IDS:-true}" \
   visualization:=true \
   rviz:="${ENABLE_RVIZ:-true}" \
   autonomous_navigation:="${AUTONOMOUS_NAVIGATION:-false}" \
   autonomous_navigation_enabled:="${AUTONOMOUS_NAVIGATION_ENABLED:-false}" \
+  navigation_base_frame:="${NAVIGATION_BASE_FRAME:-body}" \
   navigation_priority_config:="${NAVIGATION_PRIORITY_CONFIG:-}" \
   trimble_scan_watcher:="${TRIMBLE_SCAN_WATCHER:-true}" \
   trimble_scan_directory:="${TRIMBLE_SCAN_DIRECTORY:-/tmp/trimble_scans}" \
@@ -74,7 +92,7 @@ exec ros2 launch pointcloud_bridge full_pipeline.launch.xml \
   digital_twin_map:="${DIGITAL_TWIN_MAP:-true}" \
   frontier_planner:="${FRONTIER_PLANNER:-true}" \
   frame_anchor:="${FRAME_ANCHOR:-true}" \
-  robot_world_frame:="${ROBOT_WORLD_FRAME:-odom}" \
+  robot_world_frame:="${ROBOT_WORLD_FRAME:-oak_odom}" \
   anchor_store_path:="${ANCHOR_STORE_PATH:-/tmp/digital_twin_anchor.yaml}" \
   auto_anchor_on_first_scan:="${AUTO_ANCHOR_ON_FIRST_SCAN:-true}" \
   infrastructure_planner:="${INFRASTRUCTURE_PLANNER:-true}" \
@@ -90,6 +108,11 @@ exec ros2 launch pointcloud_bridge full_pipeline.launch.xml \
   spot_arrival_timeout_sec:="${SPOT_ARRIVAL_TIMEOUT_SEC:-45.0}" \
   spot_auto_power_on:="${SPOT_AUTO_POWER_ON:-false}" \
   spot_stand_before_move:="${SPOT_STAND_BEFORE_MOVE:-true}" \
+  arrival_check_source:="${ARRIVAL_CHECK_SOURCE:-tf}" \
+  arrival_base_frame:="${ARRIVAL_BASE_FRAME:-body}" \
+  arrival_position_tolerance_m:="${ARRIVAL_POSITION_TOLERANCE_M:-0.35}" \
+  arrival_yaw_tolerance_rad:="${ARRIVAL_YAW_TOLERANCE_RAD:-0.45}" \
+  arrival_stable_sec:="${ARRIVAL_STABLE_SEC:-1.5}" \
   defect_map:="${DEFECT_MAP:-true}" \
   pointcloud_monitor:=false \
   image_monitor:=false

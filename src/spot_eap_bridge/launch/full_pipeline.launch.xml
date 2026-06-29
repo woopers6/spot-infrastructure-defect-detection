@@ -2,7 +2,7 @@
 <launch>
   <arg name="lidar_input_topic" default="/lidar/raw"/>
   <arg name="lidar_frame" default="lidar"/>
-  <arg name="camera_frame" default="camera_optical_frame"/>
+  <arg name="camera_frame" default="body"/>
   <arg name="camera_index" default="0"/>
   <arg name="camera_frame_rate" default="30.0"/>
   <arg name="camera_reconnect_interval_sec" default="2.0"/>
@@ -18,13 +18,24 @@
        default="$(find-pkg-share defect_detection)/models/dataset.yaml"/>
   <arg name="model_path"
        default="$(find-pkg-share defect_detection)/models/yolov11m.engine"/>
-  <arg name="image_topic" default="/ros2_image"/>
+  <arg name="image_topic" default="/oak/rgb/image_raw"/>
   <arg name="detections_2d_topic" default="/detections_2d"/>
   <arg name="pointcloud_topic" default="/lidar/points"/>
   <arg name="detections_3d_topic" default="/detections_3d"/>
   <arg name="fusion" default="false"/>
   <arg name="calibration_path"
        default="$(find-pkg-share defect_detection)/config/site_calibration.yaml"/>
+  <arg name="oak_depth_navigation" default="true"/>
+  <arg name="oak_depth_topic" default="/oak/rgb/depth"/>
+  <arg name="oak_camera_info_topic" default="/oak/rgb/camera_info"/>
+  <arg name="oak_depth_minimum_confidence" default="0.50"/>
+  <arg name="oak_depth_bbox_padding_px" default="4"/>
+  <arg name="oak_depth_default_bbox_size_m" default="0.20"/>
+  <arg name="oak_localization" default="true"/>
+  <arg name="oak_odom_topic" default="/oak/odom"/>
+  <arg name="oak_odom_frame" default="oak_odom"/>
+  <arg name="oak_odom_base_frame" default="body"/>
+  <arg name="oak_odom_use_message_frame_ids" default="false"/>
   <arg name="visualization" default="true"/>
   <arg name="rviz" default="false"/>
   <arg name="visualization_pointcloud_topic" default="/rviz/pointcloud"/>
@@ -35,7 +46,7 @@
   <arg name="autonomous_navigation" default="false"/>
   <arg name="autonomous_navigation_enabled" default="false"/>
   <arg name="navigation_target_frame" default="map"/>
-  <arg name="navigation_base_frame" default="base_link"/>
+  <arg name="navigation_base_frame" default="body"/>
   <arg name="navigation_standoff_distance" default="1.50"/>
   <arg name="navigation_minimum_confidence" default="0.50"/>
   <arg name="navigation_priority_config"
@@ -64,7 +75,7 @@
   <arg name="waypoint_arrived_topic" default="/digital_twin/waypoint_arrived"/>
   <arg name="frontier_send_nav2_goals" default="false"/>
   <arg name="frame_anchor" default="true"/>
-  <arg name="robot_world_frame" default="odom"/>
+  <arg name="robot_world_frame" default="oak_odom"/>
   <arg name="anchor_request_topic" default="/digital_twin/anchor_request"/>
   <arg name="anchor_store_path" default="/tmp/digital_twin_anchor.yaml"/>
   <arg name="auto_anchor_on_first_scan" default="true"/>
@@ -78,11 +89,16 @@
   <arg name="spot_ip" default=""/>
   <arg name="spot_username" default=""/>
   <arg name="spot_password" default=""/>
-  <arg name="spot_command_frame" default="odom"/>
+  <arg name="spot_command_frame" default="body"/>
   <arg name="spot_goal_duration_sec" default="30.0"/>
   <arg name="spot_arrival_timeout_sec" default="45.0"/>
   <arg name="spot_auto_power_on" default="false"/>
   <arg name="spot_stand_before_move" default="true"/>
+  <arg name="arrival_check_source" default="tf"/>
+  <arg name="arrival_base_frame" default="body"/>
+  <arg name="arrival_position_tolerance_m" default="0.35"/>
+  <arg name="arrival_yaw_tolerance_rad" default="0.45"/>
+  <arg name="arrival_stable_sec" default="1.5"/>
   <arg name="trimble_windows_bridge" default="false"/>
   <arg name="trimble_windows_url" default="http://127.0.0.1:8765"/>
   <arg name="trimble_reference_scan_on_start" default="true"/>
@@ -126,6 +142,23 @@
     <arg name="detections_3d_topic" value="$(var detections_3d_topic)"/>
     <arg name="fusion" value="$(var fusion)"/>
     <arg name="calibration_path" value="$(var calibration_path)"/>
+    <arg name="oak_depth_navigation"
+         value="$(var oak_depth_navigation)"/>
+    <arg name="oak_depth_topic" value="$(var oak_depth_topic)"/>
+    <arg name="oak_camera_info_topic"
+         value="$(var oak_camera_info_topic)"/>
+    <arg name="oak_depth_minimum_confidence"
+         value="$(var oak_depth_minimum_confidence)"/>
+    <arg name="oak_depth_bbox_padding_px"
+         value="$(var oak_depth_bbox_padding_px)"/>
+    <arg name="oak_depth_default_bbox_size_m"
+         value="$(var oak_depth_default_bbox_size_m)"/>
+    <arg name="oak_localization" value="$(var oak_localization)"/>
+    <arg name="oak_odom_topic" value="$(var oak_odom_topic)"/>
+    <arg name="oak_odom_frame" value="$(var oak_odom_frame)"/>
+    <arg name="oak_odom_base_frame" value="$(var oak_odom_base_frame)"/>
+    <arg name="oak_odom_use_message_frame_ids"
+         value="$(var oak_odom_use_message_frame_ids)"/>
     <arg name="visualization" value="$(var visualization)"/>
     <arg name="rviz" value="$(var rviz)"/>
     <arg name="visualization_pointcloud_topic"
@@ -206,6 +239,13 @@
     <arg name="spot_auto_power_on" value="$(var spot_auto_power_on)"/>
     <arg name="spot_stand_before_move"
          value="$(var spot_stand_before_move)"/>
+    <arg name="arrival_check_source" value="$(var arrival_check_source)"/>
+    <arg name="arrival_base_frame" value="$(var arrival_base_frame)"/>
+    <arg name="arrival_position_tolerance_m"
+         value="$(var arrival_position_tolerance_m)"/>
+    <arg name="arrival_yaw_tolerance_rad"
+         value="$(var arrival_yaw_tolerance_rad)"/>
+    <arg name="arrival_stable_sec" value="$(var arrival_stable_sec)"/>
     <arg name="trimble_windows_bridge"
          value="$(var trimble_windows_bridge)"/>
     <arg name="trimble_windows_url" value="$(var trimble_windows_url)"/>

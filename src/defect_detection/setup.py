@@ -64,6 +64,10 @@ setup(
             'defect_detection.digital_twin.infrastructure_planner:main',
             'robot_goal_bridge = '
             'defect_detection.digital_twin.robot_goal_bridge:main',
+            'oak_depth_fusion_node = '
+            'defect_detection.digital_twin.oak_depth_fusion_node:main',
+            'oak_localization_bridge = '
+            'defect_detection.digital_twin.oak_localization_bridge:main',
         ],
     },
 )

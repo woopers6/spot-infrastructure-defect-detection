@@ -33,12 +33,52 @@ Generic live or simulated point clouds can still be bridged:
 /lidar/raw -> pointcloud_bridge -> /lidar/points -> /detections_3d
 ```
 
+For the field robot, navigation perception is intended to use a Luxonis
+OAK-D Pro W class camera: IR illumination, wide FOV stereo, and OV9782 global
+shutter stereo sensors. In that mode:
+
+```text
+OAK RGB image -> YOLO -> /detections_2d
+OAK depth + camera_info + /detections_2d -> /detections_3d
+OAK visual odometry/VSLAM -> /oak/odom -> oak_odom -> body TF
+/detections_3d -> digital twin defect markers -> inspection/rescan goals
+```
+
+The OAK path is enabled with:
+
+```text
+OAK_DEPTH_NAVIGATION=true
+OAK_LOCALIZATION=true
+IMAGE_TOPIC=/oak/rgb/image_raw
+OAK_DEPTH_TOPIC=/oak/rgb/depth
+OAK_CAMERA_INFO_TOPIC=/oak/rgb/camera_info
+OAK_ODOM_TOPIC=/oak/odom
+ROBOT_WORLD_FRAME=oak_odom
+NAVIGATION_BASE_FRAME=body
+```
+
+The depth image must be aligned to the RGB image used by YOLO. Topic names
+depend on the `depthai_ros` launch file, so confirm them with `ros2 topic list`
+on the Jetson and update `config/field.env` if needed.
+
+Mission localization intentionally uses OAK odometry/VSLAM rather than Spot
+odom. The OAK localization bridge republishes `/oak/odom` as TF, normally
+`oak_odom -> body`. The first Trimble reference scan anchors the digital twin
+`map` frame to `oak_odom`, so the planner computes goals from OAK-estimated
+motion. Spot still uses its internal low-level balance/motor control to walk,
+but the high-level inspection localization source is OAK.
+
+For best results, configure the OAK odometry/VSLAM output so its child frame is
+the robot body frame, or provide a calibrated static transform from the OAK
+camera frame to `body`.
+
 ## Requirements
 
 - ROS 2 Jazzy
 - Python 3.12
 - OpenCV and `cv_bridge`
 - Ultralytics for YOLO
+- DepthAI ROS publishing OAK RGB/depth/camera_info topics
 - `laspy` and `lazrs` for LAS/LAZ scan ingestion
 
 Install field Python dependencies:
