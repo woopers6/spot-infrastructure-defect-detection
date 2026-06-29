@@ -139,13 +139,13 @@ scan_cooldown_sec:=60.0
 The Trimble scan watcher defaults to `trimble_require_scan_request:=true`, so
 it only ingests the next completed scan after a high-confidence request.
 
-For the first station/reference scan, enable the Windows bridge. It requests a
-reference scan on startup even when there are no detections:
+For the first station/reference scan, enable the Perspective bridge. It requests
+a reference scan on startup even when there are no detections:
 
 ```bash
 ros2 launch pointcloud_bridge full_pipeline.launch.xml \
   trimble_windows_bridge:=true \
-  trimble_windows_url:=http://WINDOWS_IP:8765 \
+  trimble_windows_url:=http://PERSPECTIVE_HOST_IP:8765 \
   trimble_reference_scan_on_start:=true
 ```
 
@@ -208,9 +208,21 @@ allows the payload to power motors. The backend acquires a lease, optionally
 commands stand, sends an SE2 trajectory goal, and publishes waypoint arrival
 when the SDK trajectory command completes.
 
-## Windows Perspective Bridge
+## Perspective Control Host
 
-Run the companion app on the Windows machine that controls Trimble Perspective:
+The Trimble X7 side is coordinated by a Perspective control host. This can be a
+Windows laptop, or a Samsung/Android tablet if Trimble Perspective is running
+there. The Jetson stays responsible for ROS 2, OAK-D perception, AI detections,
+robot goals, and digital-twin processing.
+
+```text
+Samsung tablet or Windows laptop
+  -> Trimble Perspective controls the X7
+  -> Perspective bridge app handles Start/Stop/status/scan-file transfer
+  -> Jetson runs ROS 2, OAK-D, YOLO, planner, and digital twin
+```
+
+The checked-in companion app currently targets Windows/Tkinter:
 
 ```powershell
 python tools\trimble_perspective_bridge\windows_app.py
@@ -219,12 +231,51 @@ python tools\trimble_perspective_bridge\windows_app.py
 Press `Start` in the app to SSH into the Jetson, build the ROS workspace, launch
 the autonomy/digital-twin stack, and wait for the Jetson to report ready. Press
 `Stop + Download Twin` to stop the Jetson ROS launch and copy configured
-digital-twin outputs back to the Windows computer.
+digital-twin outputs back to the control host.
 
 The app also listens for Jetson scan requests, optionally launches Perspective,
 watches the Perspective export folder, and prepares a Jetson-sized `.las` or
-`.laz` copy before transfer. Full-resolution raw scans stay on the Windows
-machine by default; this keeps Wi-Fi transfer practical.
+`.laz` copy before transfer. Full-resolution raw scans stay on the Perspective
+host by default; this keeps Wi-Fi transfer practical.
+
+### Samsung Tablet Control Panel
+
+If Trimble Perspective runs on the Samsung tablet, the tablet can be the field
+control panel instead of the Windows laptop. The recommended tablet design is a
+small Python web app running under Termux:
+
+```text
+Tablet browser -> local Python control app -> Jetson SSH/HTTP
+                                      |
+                                      v
+                         Trimble Perspective export folder
+```
+
+On the tablet, install Termux, then:
+
+```bash
+pkg update
+pkg install python openssh git
+python -m pip install flask requests paramiko watchdog
+```
+
+The tablet app should expose the same HTTP endpoints used by the Jetson bridge:
+
+```text
+POST /scan_request
+POST /waypoint_arrived
+POST /jetson_ready
+GET /health
+GET /status
+```
+
+The tablet app should also watch the Perspective export folder for completed
+`.las`, `.laz`, or `.e57` files, reduce/copy the scan if needed, transfer it to
+the Jetson scan folder, and keep the tablet browser updated with mission state.
+Android may limit direct control of another app's buttons, so the reliable path
+is file/export-folder automation. If Perspective does not expose a supported
+API or predictable export folder, use the tablet app as the mission control
+panel and let the operator confirm/export scans in Perspective.
 
 Recommended Wi-Fi starting point:
 
